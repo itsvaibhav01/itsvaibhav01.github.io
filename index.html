@@ -157,6 +157,31 @@
         }
         .cvpr { background: rgba(30, 144, 255, 0.2); color: #60a5fa; }
         .emnlp { background: rgba(255, 69, 0, 0.2); color: #fb7185; }
+        .pub-links { margin-top: 15px; display: flex; gap: 15px; }
+        .pub-link { color: var(--accent); text-decoration: none; font-size: 0.85rem; border-bottom: 1px dotted transparent; transition:0.2s; }
+        .pub-link:hover { border-bottom-color: var(--accent); }
+        .pub-link.secondary { color: var(--text-muted); }
+        .pub-link.secondary:hover { color: var(--text-main); }
+
+        /* --- GALLERY STYLES --- */
+        .gallery-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 15px;
+        }
+        .gallery-item {
+            position: relative; height: 200px; border-radius: 12px;
+            overflow: hidden; border: 1px solid var(--border); background: #000;
+        }
+        .gallery-item img {
+            width: 100%; height: 100%; object-fit: cover;
+            opacity: 0.8; transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+        .gallery-item:hover img { transform: scale(1.1); opacity: 1; }
+        .gallery-caption {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            padding: 10px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            color: #fff; font-size: 0.8rem; font-weight: 600;
+        }
 
         /* --- BUTTONS --- */
         .btn-group { display: flex; gap: 15px; margin-top: 20px; }
@@ -313,8 +338,9 @@
                 <p style="font-size:0.9rem; color:var(--text-muted);">
                     Proposed an inference-time defense framework leveraging safe reward models to defend against jailbreak attacks in Multi-modal LLMs.
                 </p>
-                <div style="margin-top:10px;">
-                    <a href="https://arxiv.org/abs/2411.18688" style="color:var(--accent); text-decoration:none; font-size:0.85rem;">Read Paper &rarr;</a>
+                <div class="pub-links">
+                    <a href="https://itsvaibhav01.github.io/immune-web/" target="_blank" class="pub-link">Project Page &nearr;</a>
+                    <a href="https://arxiv.org/abs/2411.18688" target="_blank" class="pub-link secondary">Read Paper &rarr;</a>
                 </div>
             </div>
 
@@ -324,8 +350,34 @@
                 <p style="font-size:0.9rem; color:var(--text-muted);">
                     A novel framework for enhancing reward model generalization in low-resource settings using few-shot examples.
                 </p>
-                <div style="margin-top:10px;">
-                    <a href="https://github.com/itsvaibhav01/Relic" style="color:var(--accent); text-decoration:none; font-size:0.85rem;">View Code &rarr;</a>
+                <div class="pub-links">
+                     <a href="https://itsvaibhav01.github.io/Relic-web/" target="_blank" class="pub-link">Project Page &nearr;</a>
+                     <a href="https://github.com/itsvaibhav01/Relic" target="_blank" class="pub-link secondary">View Code &rarr;</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="gallery">
+            <div class="section-header">
+                <i class="fas fa-camera"></i>
+                <h2>Visual Data</h2>
+            </div>
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="https://via.placeholder.com/400x300/111/00f3ff?text=CVPR+Presentation" alt="CVPR 2025">
+                    <div class="gallery-caption">CVPR 2025 Presentation</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://via.placeholder.com/400x300/111/bc13fe?text=EMNLP+Poster" alt="EMNLP 2025">
+                    <div class="gallery-caption">EMNLP 2025 Poster Session</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://via.placeholder.com/400x300/111/fff?text=Axelspace+Lab" alt="Lab Work">
+                    <div class="gallery-caption">Axelspace Lab & Team</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://via.placeholder.com/400x300/111/888?text=Project+Demo" alt="Project Demo">
+                    <div class="gallery-caption">GenAI Pipeline Demo</div>
                 </div>
             </div>
         </section>
