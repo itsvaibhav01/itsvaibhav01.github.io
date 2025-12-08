@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaibhav Singh | Research Scientist</title>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- THEME VARIABLES --- */
+        :root {
+            --bg-dark: #0a0f14;
+            --card-bg: rgba(18, 24, 32, 0.95);
+            --text-main: #f0f4f8;
+            --text-muted: #94a3b8;
+            --accent: #00f3ff; /* Cyber Cyan */
+            --accent-glow: rgba(0, 243, 255, 0.15);
+            --secondary: #bc13fe; /* Neon Purple */
+            --border: rgba(148, 163, 184, 0.15);
+            --mono-font: 'JetBrains Mono', monospace;
+        }
+
+        /* --- GLOBAL --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- BACKGROUND --- */
+        #game-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; cursor: crosshair;
+        }
+
+        /* --- CONTROLS --- */
+        .game-controls {
+            position: fixed; bottom: 30px; right: 30px;
+            display: flex; gap: 10px; z-index: 100;
+            background: var(--card-bg); padding: 8px;
+            border-radius: 50px; border: 1px solid var(--border);
+            backdrop-filter: blur(5px);
+        }
+        .game-btn {
+            background: transparent; border: none; color: var(--text-muted);
+            cursor: pointer; width: 35px; height: 35px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .game-btn:hover { color: var(--accent); background: var(--accent-glow); }
+
+        /* --- LAYOUT --- */
+        .container {
+            max-width: 1000px; margin: 0 auto; padding: 0 20px;
+            position: relative; z-index: 1;
+        }
+
+        /* --- HERO --- */
+        header {
+            min-height: 85vh; display: flex; flex-direction: column;
+            justify-content: center; padding-top: 50px;
+        }
+        .role-badge {
+            font-family: var(--mono-font); color: var(--accent);
+            background: var(--accent-glow); padding: 5px 12px;
+            border-radius: 4px; font-size: 0.85rem; display: inline-block;
+            margin-bottom: 20px; border: 1px solid rgba(0, 243, 255, 0.3);
+        }
+        h1 {
+            font-size: 4rem; font-weight: 800; margin-bottom: 20px;
+            line-height: 1.1; letter-spacing: -1px;
+            background: linear-gradient(to right, #fff, #a5b4fc);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero-summary {
+            font-size: 1.2rem; color: var(--text-muted); margin-bottom: 40px;
+            max-width: 700px;
+        }
+        .highlight { color: var(--text-main); font-weight: 600; border-bottom: 1px dotted var(--accent); }
+
+        /* --- STATS BAR --- */
+        .stats-bar {
+            display: flex; gap: 30px; margin-bottom: 40px;
+            padding: 20px; background: rgba(255,255,255,0.03);
+            border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0;
+        }
+        .stat-item h4 { font-size: 1.5rem; color: var(--text-main); margin-bottom: 0; }
+        .stat-item p { font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono-font); }
+
+        /* --- SECTION STYLES --- */
+        section { margin-bottom: 100px; }
+        .section-header {
+            display: flex; align-items: center; gap: 12px; margin-bottom: 30px;
+        }
+        .section-header h2 { font-size: 1.8rem; font-weight: 700; }
+        .section-header i { color: var(--accent); font-size: 1.4rem; }
+
+        /* --- SKILL GRID (SYSTEM SPECS) --- */
+        .tech-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .tech-card {
+            background: var(--card-bg); border: 1px solid var(--border);
+            padding: 25px; border-radius: 12px;
+        }
+        .tech-card h3 { 
+            font-size: 1rem; color: var(--accent); margin-bottom: 15px; 
+            font-family: var(--mono-font); text-transform: uppercase;
+        }
+        .skill-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .skill-tag {
+            font-size: 0.8rem; padding: 4px 10px; border-radius: 20px;
+            background: rgba(255,255,255,0.05); color: var(--text-muted);
+            border: 1px solid transparent; transition: 0.2s;
+        }
+        .skill-tag:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* --- IMPACT CARD (LOMBARD STANDARD) --- */
+        .impact-card {
+            background: linear-gradient(145deg, rgba(20,20,25,0.95) 0%, rgba(10,15,20,0.95) 100%);
+            border: 1px solid var(--border); border-radius: 12px; padding: 30px;
+            position: relative; overflow: hidden;
+        }
+        .impact-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--secondary);
+        }
+        .impact-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .impact-role { font-size: 1.2rem; font-weight: 700; color: #fff; }
+        .impact-company { color: var(--secondary); font-family: var(--mono-font); }
+        .impact-metrics {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px; margin-top: 20px; padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+        .metric { display: flex; flex-direction: column; }
+        .metric-val { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
+        .metric-lbl { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* --- PUBLICATIONS CARD --- */
+        .pub-card {
+            background: var(--card-bg); padding: 25px; border-radius: 12px;
+            margin-bottom: 20px; border: 1px solid var(--border);
+            transition: transform 0.2s;
+        }
+        .pub-card:hover { transform: translateY(-3px); border-color: var(--accent); }
+        .venue-tag {
+            font-size: 0.75rem; padding: 3px 8px; border-radius: 4px;
+            font-weight: 700; text-transform: uppercase; display: inline-block; margin-bottom: 8px;
+        }
+        .cvpr { background: rgba(30, 144, 255, 0.2); color: #60a5fa; }
+        .emnlp { background: rgba(255, 69, 0, 0.2); color: #fb7185; }
+
+        /* --- BUTTONS --- */
+        .btn-group { display: flex; gap: 15px; margin-top: 20px; }
+        .btn {
+            padding: 10px 20px; border-radius: 6px; text-decoration: none;
+            font-size: 0.9rem; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;
+            transition: 0.2s;
+        }
+        .btn-primary { background: var(--accent); color: #000; }
+        .btn-primary:hover { box-shadow: 0 0 15px var(--accent-glow); }
+        .btn-outline { border: 1px solid var(--border); color: var(--text-main); }
+        .btn-outline:hover { border-color: var(--text-muted); background: rgba(255,255,255,0.05); }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .stats-bar { flex-direction: column; gap: 15px; }
+            .impact-header { flex-direction: column; gap: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="game-canvas"></canvas>
+
+    <div class="game-controls">
+        <button class="game-btn" onclick="togglePause()"><i class="fas fa-pause" id="play-icon"></i></button>
+        <button class="game-btn" onclick="clearGrid()"><i class="fas fa-trash"></i></button>
+        <button class="game-btn" onclick="resetGrid()"><i class="fas fa-random"></i></button>
+    </div>
+
+    <div class="container">
+        
+        <header>
+            <div class="role-badge">> RESEARCH SCIENTIST & AI/ML ENGINEER</div>
+            <h1>Vaibhav Singh</h1>
+            
+            <p class="hero-summary">
+                I design and deploy <span class="highlight">end-to-end Generative AI</span>, LLM, and RAG pipelines. 
+                Specialized in productionizing scalable AI platforms and robust evaluation systems.
+                Co-authored 2 AI safety publications (CVPR, EMNLP).
+            </p>
+
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <h4>5+ Years</h4>
+                    <p>Experience</p>
+                </div>
+                <div class="stat-item">
+                    <h4>3 Years</h4>
+                    <p>GenAI & LLM Stack</p>
+                </div>
+                <div class="stat-item">
+                    <h4>Lead</h4>
+                    <p>Teams of 4-5</p>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <a href="https://github.com/itsvaibhav01" target="_blank" class="btn btn-primary">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+                <a href="https://scholar.google.com/citations?user=5tdH2eEAAAAJ&hl=en" target="_blank" class="btn btn-outline">
+                    <i class="fas fa-graduation-cap"></i> Scholar
+                </a>
+                <a href="mailto:your-email@example.com" class="btn btn-outline">
+                    <i class="fas fa-envelope"></i> Contact
+                </a>
+            </div>
+        </header>
+
+        <section id="experience">
+            <div class="section-header">
+                <i class="fas fa-rocket"></i>
+                <h2>Impact & Leadership</h2>
+            </div>
+            
+            <div class="impact-card">
+                <div class="impact-header">
+                    <div>
+                        <div class="impact-role">AI Lead</div>
+                        <div class="impact-company">@ Lombard Standard</div>
+                    </div>
+                    <div style="font-size:0.8rem; color:var(--text-muted);">PRE-SEED FUNDED</div>
+                </div>
+                <p style="color:var(--text-muted); margin-bottom:15px;">
+                    Led a team of 4-5 engineers to productionize scalable AI platforms. Built automated evaluation pipelines and ran rapid experiments to drive product maturity.
+                </p>
+                <div class="impact-metrics">
+                    <div class="metric">
+                        <span class="metric-val">Antler</span>
+                        <span class="metric-lbl">Funding Secured</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-val">$1.2K</span>
+                        <span class="metric-lbl">MRR Generated</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-val">Production</span>
+                        <span class="metric-lbl">Scalable Platforms</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="skills">
+            <div class="section-header">
+                <i class="fas fa-terminal"></i>
+                <h2>System Specs</h2>
+            </div>
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <h3>Generative AI Core</h3>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Azure OpenAI</span>
+                        <span class="skill-tag">LangChain</span>
+                        <span class="skill-tag">AWS Bedrock</span>
+                        <span class="skill-tag">Pinecone (Vector DB)</span>
+                        <span class="skill-tag">RAG Pipelines</span>
+                    </div>
+                </div>
+                <div class="tech-card">
+                    <h3>Model Engineering</h3>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Fine-Tuning (SFT/PEFT)</span>
+                        <span class="skill-tag">LoRA</span>
+                        <span class="skill-tag">RLHF</span>
+                        <span class="skill-tag">Multimodal (CLIP)</span>
+                        <span class="skill-tag">Vision-Language</span>
+                    </div>
+                </div>
+                <div class="tech-card">
+                    <h3>MLOps & Infrastructure</h3>
+                    <div class="skill-tags">
+                        <span class="skill-tag">Docker</span>
+                        <span class="skill-tag">Kubernetes</span>
+                        <span class="skill-tag">AWS / GCP</span>
+                        <span class="skill-tag">Python & SQL</span>
+                        <span class="skill-tag">Large-scale Eval</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="publications">
+            <div class="section-header">
+                <i class="fas fa-book"></i>
+                <h2>Research Publications</h2>
+            </div>
+            
+            <div class="pub-card">
+                <span class="venue-tag cvpr">CVPR 2025</span>
+                <h3 style="color:#fff; font-size:1.1rem; margin-bottom:5px;">Immune: Improving Safety Against Jailbreaks</h3>
+                <p style="font-size:0.9rem; color:var(--text-muted);">
+                    Proposed an inference-time defense framework leveraging safe reward models to defend against jailbreak attacks in Multi-modal LLMs.
+                </p>
+                <div style="margin-top:10px;">
+                    <a href="https://arxiv.org/abs/2411.18688" style="color:var(--accent); text-decoration:none; font-size:0.85rem;">Read Paper &rarr;</a>
+                </div>
+            </div>
+
+            <div class="pub-card">
+                <span class="venue-tag emnlp">EMNLP 2025</span>
+                <h3 style="color:#fff; font-size:1.1rem; margin-bottom:5px;">RELIC: Reward Model Generalization</h3>
+                <p style="font-size:0.9rem; color:var(--text-muted);">
+                    A novel framework for enhancing reward model generalization in low-resource settings using few-shot examples.
+                </p>
+                <div style="margin-top:10px;">
+                    <a href="https://github.com/itsvaibhav01/Relic" style="color:var(--accent); text-decoration:none; font-size:0.85rem;">View Code &rarr;</a>
+                </div>
+            </div>
+        </section>
+
+        <footer style="text-align:center; padding: 50px 0; color: #666; font-size: 0.8rem; border-top: 1px solid var(--border);">
+            &copy; 2025 Vaibhav Singh. <br>
+            <i>Interactive Background: Conway's Game of Life</i>
+        </footer>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, rows, cols;
+        const cellSize = 25; 
+        let grid = [];
+        let animationId;
+        let isPlaying = true;
+        const liveColor = 'rgba(0, 243, 255, 0.15)'; // Cyan matching theme
+
+        function init() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            cols = Math.ceil(width / cellSize);
+            rows = Math.ceil(height / cellSize);
+            grid = new Array(cols).fill(null).map(() => new Array(rows).fill(0));
+            randomizeGrid();
+            animate();
+        }
+
+        function randomizeGrid() {
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    grid[i][j] = Math.random() > 0.9 ? 1 : 0;
+                }
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = liveColor;
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    if (grid[i][j]) {
+                        ctx.beginPath();
+                        ctx.arc(i * cellSize + cellSize/2, j * cellSize + cellSize/2, cellSize/3, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+        }
+
+        function update() {
+            let nextGrid = grid.map(arr => [...arr]);
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    let neighbors = 0;
+                    for (let x = -1; x < 2; x++) {
+                        for (let y = -1; y < 2; y++) {
+                            if (x === 0 && y === 0) continue;
+                            const col = (i + x + cols) % cols;
+                            const row = (j + y + rows) % rows;
+                            neighbors += grid[col][row];
+                        }
+                    }
+                    if (grid[i][j] === 1 && (neighbors < 2 || neighbors > 3)) nextGrid[i][j] = 0;
+                    else if (grid[i][j] === 0 && neighbors === 3) nextGrid[i][j] = 1;
+                }
+            }
+            grid = nextGrid;
+        }
+
+        function animate() {
+            if (isPlaying) { update(); draw(); }
+            setTimeout(() => { animationId = requestAnimationFrame(animate); }, 80);
+        }
+
+        canvas.addEventListener('mousemove', (e) => {
+            const x = Math.floor(e.clientX / cellSize);
+            const y = Math.floor(e.clientY / cellSize);
+            if(x >= 0 && x < cols && y >= 0 && y < rows) {
+                grid[x][y] = 1;
+                draw();
+            }
+        });
+
+        function togglePause() { isPlaying = !isPlaying; document.getElementById('play-icon').className = isPlaying ? 'fas fa-pause' : 'fas fa-play'; }
+        function clearGrid() { grid = grid.map(row => row.map(() => 0)); draw(); }
+        function resetGrid() { randomizeGrid(); draw(); }
+        window.addEventListener('resize', init);
+        init();
+    </script>
+</body>
+</html>
