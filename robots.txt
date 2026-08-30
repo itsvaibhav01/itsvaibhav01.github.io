@@ -1,0 +1,8 @@
+# https://itsvaibhav01.github.io/
+User-agent: *
+Allow: /
+
+# Publication figures and photos are fine to index
+Allow: /img/
+
+Sitemap: https://itsvaibhav01.github.io/sitemap.xml

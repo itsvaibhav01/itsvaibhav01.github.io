@@ -1,470 +1,1365 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vaibhav Singh | Research Scientist</title>
-    
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vaibhav Singh — LLM Safety, Alignment &amp; Test-Time Reasoning</title>
+<meta name="description" content="Vaibhav Singh — research on LLM safety, alignment, in-context learning and test-time reasoning. Papers at CVPR, ICML and EMNLP. Based in Tokyo, at SB Intuitions.">
+<meta name="author" content="Vaibhav Singh">
+<link rel="canonical" href="https://itsvaibhav01.github.io/">
 
-    <style>
-        /* --- THEME VARIABLES --- */
-        :root {
-            --bg-dark: #0a0f14;
-            --card-bg: rgba(18, 24, 32, 0.95);
-            --text-main: #f0f4f8;
-            --text-muted: #94a3b8;
-            --accent: #00f3ff; /* Cyber Cyan */
-            --accent-glow: rgba(0, 243, 255, 0.15);
-            --secondary: #bc13fe; /* Neon Purple */
-            --border: rgba(148, 163, 184, 0.15);
-            --mono-font: 'JetBrains Mono', monospace;
-        }
+<meta property="og:type" content="profile">
+<meta property="og:title" content="Vaibhav Singh — LLM Safety, Alignment &amp; Test-Time Reasoning">
+<meta property="og:description" content="Five papers at CVPR, ICML and EMNLP on steering models at inference time.">
+<meta property="og:url" content="https://itsvaibhav01.github.io/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Vaibhav Singh — LLM Safety, Alignment &amp; Test-Time Reasoning">
+<meta name="twitter:description" content="Steering language models at inference time. Published at CVPR, ICML and EMNLP.">
+<meta name="twitter:image" content="https://itsvaibhav01.github.io/img/EMNLP2024.jpeg">
 
-        /* --- GLOBAL --- */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
+<meta property="og:site_name" content="Vaibhav Singh">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://itsvaibhav01.github.io/img/EMNLP2024.jpeg">
+<meta property="og:image:width" content="4032">
+<meta property="og:image:height" content="3024">
+<meta property="og:image:alt" content="Vaibhav Singh at EMNLP 2024">
 
-        /* --- BACKGROUND --- */
-        #game-canvas {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; cursor: crosshair;
-        }
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+<meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large">
+<meta name="keywords" content="Vaibhav Singh, LLM safety, AI alignment, inference-time alignment, jailbreak defense, reward models, in-context learning, test-time scaling, multimodal LLM, IMMUNE, SafeThink, ThinkRetrieve, KITE, RELIC, IIT Bombay, SB Intuitions, Axelspace, image generation, world models, computer vision, machine learning researcher">
+<meta name="theme-color" content="#0b0f12">
+<meta name="format-detection" content="telephone=no">
 
-        /* --- CONTROLS --- */
-        .game-controls {
-            position: fixed; bottom: 30px; right: 30px;
-            display: flex; gap: 10px; z-index: 100;
-            background: var(--card-bg); padding: 8px;
-            border-radius: 50px; border: 1px solid var(--border);
-            backdrop-filter: blur(5px);
-        }
-        .game-btn {
-            background: transparent; border: none; color: var(--text-muted);
-            cursor: pointer; width: 35px; height: 35px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s;
-        }
-        .game-btn:hover { color: var(--accent); background: var(--accent-glow); }
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%230b0f12'/><circle cx='11' cy='11' r='3' fill='%2364b6ac'/><circle cx='21' cy='11' r='3' fill='%2364b6ac'/><circle cx='16' cy='21' r='3' fill='%23f0b429'/></svg>">
 
-        /* --- LAYOUT --- */
-        .container {
-            max-width: 1000px; margin: 0 auto; padding: 0 20px;
-            position: relative; z-index: 1;
-        }
+<script>document.documentElement.className+=" js";</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:WONK,opsz,wght@0..1,9..144,400..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-        /* --- HERO --- */
-        header {
-            min-height: 85vh; display: flex; flex-direction: column;
-            justify-content: center; padding-top: 50px;
-        }
-        .role-badge {
-            font-family: var(--mono-font); color: var(--accent);
-            background: var(--accent-glow); padding: 5px 12px;
-            border-radius: 4px; font-size: 0.85rem; display: inline-block;
-            margin-bottom: 20px; border: 1px solid rgba(0, 243, 255, 0.3);
-        }
-        h1 {
-            font-size: 4rem; font-weight: 800; margin-bottom: 20px;
-            line-height: 1.1; letter-spacing: -1px;
-            background: linear-gradient(to right, #fff, #a5b4fc);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        .hero-summary {
-            font-size: 1.2rem; color: var(--text-muted); margin-bottom: 40px;
-            max-width: 700px;
-        }
-        .highlight { color: var(--text-main); font-weight: 600; border-bottom: 1px dotted var(--accent); }
+<style>
+/* ─────────────────────────────────────────────────────────────
+   TOKENS
+   teal  = a process running        (trajectories, chains, decoding)
+   amber = an intervention in it    (steering, selection, retrieval)
+   Every motif on this page obeys that grammar.
+   ───────────────────────────────────────────────────────────── */
+:root{
+  --ink:#0b0f12;
+  --ink-1:#10161a;
+  --ink-2:#161f25;
+  --rule:#22303a;
+  --rule-soft:#1a252c;
+  --bone:#e9ece9;
+  --slate:#8fa0aa;
+  --slate-dim:#5f7280;
+  --signal:#f0b429;
+  --signal-dim:rgba(240,180,41,.14);
+  --flux:#64b6ac;
+  --flux-dim:rgba(100,182,172,.14);
+  --danger:#d96666;
 
-        /* --- STATS BAR --- */
-        .stats-bar {
-            display: flex; gap: 30px; margin-bottom: 40px;
-            padding: 20px; background: rgba(255,255,255,0.03);
-            border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0;
-        }
-        .stat-item h4 { font-size: 1.5rem; color: var(--text-main); margin-bottom: 0; }
-        .stat-item p { font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono-font); }
+  --v-cvpr:#6ea8fe;
+  --v-icml:#b39ddb;
+  --v-emnlp:#f08a7a;
 
-        /* --- SECTION STYLES --- */
-        section { margin-bottom: 100px; }
-        .section-header {
-            display: flex; align-items: center; gap: 12px; margin-bottom: 30px;
-        }
-        .section-header h2 { font-size: 1.8rem; font-weight: 700; }
-        .section-header i { color: var(--accent); font-size: 1.4rem; }
+  --serif:'Fraunces','Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
 
-        /* --- SKILL GRID (SYSTEM SPECS) --- */
-        .tech-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        .tech-card {
-            background: var(--card-bg); border: 1px solid var(--border);
-            padding: 25px; border-radius: 12px;
-        }
-        .tech-card h3 { 
-            font-size: 1rem; color: var(--accent); margin-bottom: 15px; 
-            font-family: var(--mono-font); text-transform: uppercase;
-        }
-        .skill-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-        .skill-tag {
-            font-size: 0.8rem; padding: 4px 10px; border-radius: 20px;
-            background: rgba(255,255,255,0.05); color: var(--text-muted);
-            border: 1px solid transparent; transition: 0.2s;
-        }
-        .skill-tag:hover { border-color: var(--accent); color: var(--accent); }
+  --wrap:1140px;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
 
-        /* --- IMPACT CARD (LOMBARD STANDARD) --- */
-        .impact-card {
-            background: linear-gradient(145deg, rgba(20,20,25,0.95) 0%, rgba(10,15,20,0.95) 100%);
-            border: 1px solid var(--border); border-radius: 12px; padding: 30px;
-            position: relative; overflow: hidden;
-        }
-        .impact-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
-            background: var(--secondary);
-        }
-        .impact-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-        .impact-role { font-size: 1.2rem; font-weight: 700; color: #fff; }
-        .impact-company { color: var(--secondary); font-family: var(--mono-font); }
-        .impact-metrics {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px; margin-top: 20px; padding-top: 20px;
-            border-top: 1px solid var(--border);
-        }
-        .metric { display: flex; flex-direction: column; }
-        .metric-val { font-size: 1.1rem; font-weight: 700; color: var(--text-main); }
-        .metric-lbl { font-size: 0.8rem; color: var(--text-muted); }
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  background:var(--ink);
+  color:var(--bone);
+  font-family:var(--sans);
+  font-weight:300;
+  font-size:16px;
+  line-height:1.65;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--signal);color:#0b0f12}
+a{color:inherit}
+img{max-width:100%;display:block}
+:focus-visible{outline:2px solid var(--signal);outline-offset:3px;border-radius:2px}
 
-        /* --- PUBLICATIONS CARD --- */
-        .pub-card {
-            background: var(--card-bg); padding: 25px; border-radius: 12px;
-            margin-bottom: 20px; border: 1px solid var(--border);
-            transition: transform 0.2s;
-        }
-        .pub-card:hover { transform: translateY(-3px); border-color: var(--accent); }
-        .venue-tag {
-            font-size: 0.75rem; padding: 3px 8px; border-radius: 4px;
-            font-weight: 700; text-transform: uppercase; display: inline-block; margin-bottom: 8px;
-        }
-        .cvpr { background: rgba(30, 144, 255, 0.2); color: #60a5fa; }
-        .emnlp { background: rgba(255, 69, 0, 0.2); color: #fb7185; }
-        .pub-links { margin-top: 15px; display: flex; gap: 15px; }
-        .pub-link { color: var(--accent); text-decoration: none; font-size: 0.85rem; border-bottom: 1px dotted transparent; transition:0.2s; }
-        .pub-link:hover { border-bottom-color: var(--accent); }
-        .pub-link.secondary { color: var(--text-muted); }
-        .pub-link.secondary:hover { color: var(--text-main); }
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 28px;position:relative;z-index:2;
+  text-shadow:0 1px 18px rgba(11,15,18,.75),0 0 3px rgba(11,15,18,.6)}
+.lnk--go,.motif text{text-shadow:none}
 
-        /* --- GALLERY STYLES --- */
-        .gallery-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 15px;
-        }
-        .gallery-item {
-            position: relative; height: 200px; border-radius: 12px;
-            overflow: hidden; border: 1px solid var(--border); background: #000;
-        }
-        .gallery-item img {
-            width: 100%; height: 100%; object-fit: cover;
-            opacity: 0.8; transition: transform 0.4s ease, opacity 0.4s ease;
-        }
-        .gallery-item:hover img { transform: scale(1.1); opacity: 1; }
-        .gallery-caption {
-            position: absolute; bottom: 0; left: 0; width: 100%;
-            padding: 10px; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-            color: #fff; font-size: 0.8rem; font-weight: 600;
-        }
+.skip{position:absolute;left:-9999px;top:0;background:var(--signal);color:#0b0f12;padding:10px 16px;font-family:var(--mono);font-size:.8rem;z-index:200}
+.skip:focus{left:12px;top:12px}
 
-        /* --- BUTTONS --- */
-        .btn-group { display: flex; gap: 15px; margin-top: 20px; }
-        .btn {
-            padding: 10px 20px; border-radius: 6px; text-decoration: none;
-            font-size: 0.9rem; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;
-            transition: 0.2s;
-        }
-        .btn-primary { background: var(--accent); color: #000; }
-        .btn-primary:hover { box-shadow: 0 0 15px var(--accent-glow); }
-        .btn-outline { border: 1px solid var(--border); color: var(--text-main); }
-        .btn-outline:hover { border-color: var(--text-muted); background: rgba(255,255,255,0.05); }
+/* ── Serif display ── */
+.serif{font-family:var(--serif);font-variation-settings:'WONK' 1,'opsz' 144;font-weight:500;letter-spacing:-.02em}
 
-        /* --- RESPONSIVE --- */
-        @media (max-width: 768px) {
-            h1 { font-size: 2.5rem; }
-            .stats-bar { flex-direction: column; gap: 15px; }
-            .impact-header { flex-direction: column; gap: 5px; }
-        }
-    </style>
+/* ── Mono utility ── */
+.mono{font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--slate-dim)}
+
+/* ─────────────  BACKGROUND: CONWAY  ───────────── */
+#life{position:fixed;inset:0;width:100%;height:100%;z-index:0;opacity:.9;cursor:crosshair}
+#veil{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:
+    radial-gradient(1350px 950px at 12% -6%, rgba(11,15,18,.06), rgba(11,15,18,.48) 74%),
+    linear-gradient(180deg, rgba(11,15,18,.22) 0%, rgba(11,15,18,.44) 30%, rgba(11,15,18,.48) 100%);
+}
+
+#focus{
+  position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);
+  width:min(1280px,100%);z-index:1;pointer-events:none;
+  backdrop-filter:blur(9px) saturate(.8);
+  -webkit-backdrop-filter:blur(9px) saturate(.8);
+  background:rgba(11,15,18,.34);
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 11%,#000 89%,transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 11%,#000 89%,transparent 100%);
+}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  #focus{background:rgba(11,15,18,.62)}
+}
+@media(max-width:820px){
+  #focus{
+    width:100%;-webkit-mask-image:none;mask-image:none;
+    backdrop-filter:none;-webkit-backdrop-filter:none;
+    background:rgba(11,15,18,.52);
+  }
+}
+
+.life-dock{
+  position:fixed;right:20px;bottom:20px;z-index:40;
+  display:flex;align-items:center;gap:2px;
+  background:rgba(16,22,26,.82);backdrop-filter:blur(8px);
+  border:1px solid var(--rule);border-radius:4px;padding:4px;
+}
+.life-dock button{
+  background:none;border:0;color:var(--slate-dim);cursor:pointer;
+  width:30px;height:28px;display:grid;place-items:center;border-radius:3px;
+  transition:color .18s,background .18s;
+}
+.life-dock button:hover{color:var(--signal);background:var(--signal-dim)}
+.life-dock svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.life-gen{font-family:var(--mono);font-size:.65rem;color:var(--slate-dim);padding:0 9px 0 7px;border-left:1px solid var(--rule);letter-spacing:.05em;font-variant-numeric:tabular-nums}
+@media(max-width:560px){.life-dock{right:12px;bottom:12px}.life-gen{display:none}}
+
+/* ─────────────  NAV  ───────────── */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  border-bottom:1px solid transparent;
+  transition:background .3s var(--ease),border-color .3s var(--ease),backdrop-filter .3s;
+}
+#nav.stuck{background:rgba(11,15,18,.88);backdrop-filter:blur(14px) saturate(140%);border-bottom-color:var(--rule-soft)}
+.nav-in{max-width:var(--wrap);margin:0 auto;padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.nav-mark{
+  font-family:var(--serif);font-variation-settings:'WONK' 1;font-size:1.02rem;font-weight:600;letter-spacing:-.01em;
+  text-decoration:none;opacity:0;transform:translateY(6px);transition:opacity .35s var(--ease),transform .35s var(--ease);pointer-events:none;
+}
+#nav.stuck .nav-mark{opacity:1;transform:none;pointer-events:auto}
+.nav-links{display:flex;gap:4px;align-items:center}
+.nav-links a{
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--slate-dim);text-decoration:none;padding:7px 11px;border-radius:3px;
+  transition:color .2s;position:relative;
+}
+.nav-links a:hover{color:var(--bone)}
+.nav-links a.on{color:var(--signal)}
+.nav-links a.on::after{content:'';position:absolute;left:11px;right:11px;bottom:2px;height:1px;background:var(--signal)}
+@media(max-width:760px){.nav-links a{padding:7px 7px;font-size:.6rem;letter-spacing:.08em}}
+@media(max-width:520px){.nav-links a[data-opt]{display:none}}
+
+/* ─────────────  HERO  ───────────── */
+#top{min-height:94svh;display:flex;flex-direction:column;justify-content:center;padding:120px 0 64px}
+.hero-eyebrow{margin-bottom:26px}
+.hero-eyebrow .mono{color:var(--flux)}
+h1{
+  font-family:var(--serif);font-variation-settings:'WONK' 1,'opsz' 144;
+  font-weight:600;font-size:clamp(3.1rem,8.6vw,6.4rem);line-height:.9;letter-spacing:-.035em;
+  margin-bottom:30px;
+}
+.lede{font-size:clamp(1.05rem,1.9vw,1.28rem);line-height:1.6;color:#c3ccc9;max-width:41ch;font-weight:300}
+.lede em{font-style:normal;color:var(--bone);box-shadow:inset 0 -1px 0 var(--signal)}
+.lede + .lede{margin-top:16px;max-width:46ch;color:var(--slate)}
+.lede a{color:var(--bone);text-decoration:none;box-shadow:inset 0 -1px 0 var(--rule);transition:box-shadow .2s}
+.lede a:hover{box-shadow:inset 0 -1px 0 var(--flux)}
+
+.ledger{
+  display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:0 46px;
+  margin:38px 0 30px;padding:16px 0;
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+}
+.ledger .k{
+  display:block;font-family:var(--mono);font-size:.62rem;letter-spacing:.17em;
+  text-transform:uppercase;color:var(--slate-dim);margin-bottom:6px;
+}
+.ledger b{
+  display:block;font-family:var(--mono);font-size:.82rem;font-weight:500;
+  color:var(--bone);letter-spacing:.02em;white-space:nowrap;
+}
+.ledger i{font-style:normal;color:var(--slate-dim);padding:0 3px}
+.ledger .c1{color:var(--v-cvpr)}
+.ledger .c2{color:var(--v-icml)}
+.ledger .c3{color:var(--v-emnlp)}
+@media(max-width:640px){.ledger{grid-template-columns:1fr;gap:15px}}
+
+.links{display:flex;flex-wrap:wrap;gap:9px}
+.lnk{
+  font-family:var(--mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;
+  text-decoration:none;padding:9px 15px;border:1px solid var(--rule);border-radius:4px;
+  color:var(--slate);background:rgba(16,22,26,.5);
+  display:inline-flex;align-items:center;gap:8px;transition:all .2s var(--ease);
+}
+.lnk:hover{color:var(--bone);border-color:var(--slate-dim);background:var(--ink-2);transform:translateY(-1px)}
+.lnk--go{color:#0b0f12;background:var(--signal);border-color:var(--signal);font-weight:500}
+.lnk--go:hover{color:#0b0f12;background:#f6c85c;border-color:#f6c85c}
+.lnk svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+.hero-note{
+  margin-top:34px;font-family:var(--mono);font-size:.69rem;color:var(--slate-dim);letter-spacing:.04em;
+  display:flex;align-items:flex-start;gap:8px;line-height:1.7;
+}
+.hero-note b{color:var(--flux);font-weight:400}
+
+/* ─────────────  SECTIONS  ───────────── */
+section{padding:86px 0;position:relative;z-index:2}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;
+  padding-bottom:14px;border-bottom:1px solid var(--rule);margin-bottom:8px}
+.head h2{font-family:var(--serif);font-variation-settings:'WONK' 1,'opsz' 144;
+  font-weight:500;font-size:clamp(1.85rem,3.6vw,2.6rem);letter-spacing:-.025em;line-height:1}
+.head .meta{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--slate-dim);font-variant-numeric:tabular-nums}
+.head-sub{margin-top:14px;color:var(--slate);font-size:.94rem;max-width:62ch}
+@media(max-width:600px){.head{flex-direction:column;align-items:flex-start;gap:7px}}
+
+/* legend for the motif grammar */
+.legend{display:flex;flex-wrap:wrap;gap:18px;margin-top:16px;font-family:var(--mono);font-size:.67rem;letter-spacing:.07em;text-transform:uppercase;color:var(--slate-dim)}
+.legend i{display:inline-block;width:16px;height:2px;margin-right:7px;vertical-align:middle;border-radius:2px}
+.legend .a i{background:var(--flux)}
+.legend .b i{background:var(--signal)}
+.legend .c i{background:var(--slate-dim);opacity:.6}
+
+/* ── filter ── */
+.filters{display:flex;flex-wrap:wrap;gap:7px;margin:26px 0 6px}
+.filters button{
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;
+  background:none;border:1px solid var(--rule);color:var(--slate-dim);
+  padding:6px 12px;border-radius:20px;cursor:pointer;transition:all .2s var(--ease);
+}
+.filters button:hover{color:var(--bone);border-color:var(--slate-dim)}
+.filters button[aria-pressed="true"]{color:var(--signal);border-color:rgba(240,180,41,.5);background:var(--signal-dim)}
+
+/* ─────────────  PAPERS  ───────────── */
+.papers{margin-top:6px}
+.paper{
+  display:grid;grid-template-columns:300px 1fr;gap:34px;
+  padding:34px 0;border-bottom:1px solid var(--rule-soft);
+}
+.paper.hide{display:none}
+@media(max-width:860px){.paper{grid-template-columns:1fr;gap:20px}}
+
+.motif{
+  background:var(--ink-1);border:1px solid var(--rule-soft);border-radius:5px;
+  overflow:hidden;aspect-ratio:320/170;position:relative;
+}
+.motif svg{width:100%;height:100%;display:block}
+.motif::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 72%,rgba(11,15,18,.22));pointer-events:none}
+
+.venue{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:.68rem;
+  letter-spacing:.11em;text-transform:uppercase;margin-bottom:11px}
+.venue i{width:5px;height:5px;border-radius:50%;display:block}
+.venue.cvpr{color:var(--v-cvpr)} .venue.cvpr i{background:var(--v-cvpr)}
+.venue.icml{color:var(--v-icml)} .venue.icml i{background:var(--v-icml)}
+.venue.emnlp{color:var(--v-emnlp)} .venue.emnlp i{background:var(--v-emnlp)}
+.venue s{text-decoration:none;color:var(--slate-dim);letter-spacing:.08em}
+
+.paper h3{font-family:var(--serif);font-variation-settings:'WONK' 1,'opsz' 72;
+  font-weight:500;font-size:1.42rem;line-height:1.22;letter-spacing:-.02em;margin-bottom:10px}
+.paper h3 .k{color:var(--signal)}
+.authors{font-size:.86rem;color:var(--slate-dim);line-height:1.55;margin-bottom:12px}
+.authors b{color:var(--bone);font-weight:500}
+.paper p.what{color:#b6c0bd;font-size:.95rem;line-height:1.6;max-width:60ch}
+
+.result{
+  margin-top:14px;padding-left:13px;border-left:2px solid var(--signal);
+  font-family:var(--mono);font-size:.76rem;color:var(--slate);letter-spacing:.02em;line-height:1.55;
+}
+.result b{color:var(--signal);font-weight:500;font-variant-numeric:tabular-nums}
+
+.paper-links{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.plink{
+  font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;
+  text-decoration:none;color:var(--slate);border:1px solid var(--rule);
+  padding:6px 11px;border-radius:3px;display:inline-flex;align-items:center;gap:6px;
+  background:none;cursor:pointer;transition:all .18s var(--ease);
+}
+.plink:hover{color:var(--signal);border-color:rgba(240,180,41,.45);background:var(--signal-dim)}
+.plink svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+.expand{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s var(--ease)}
+.paper.open .expand{grid-template-rows:1fr}
+.expand-in{overflow:hidden}
+.expand-body{
+  margin-top:18px;padding:18px;background:var(--ink-1);border:1px solid var(--rule-soft);border-radius:5px;
+}
+.expand-body h4{font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--slate-dim);margin-bottom:9px;font-weight:400}
+.expand-body p{font-size:.89rem;line-height:1.68;color:#aab5b2}
+.bib{margin-top:18px;padding-top:16px;border-top:1px solid var(--rule-soft)}
+.bib pre{
+  font-family:var(--mono);font-size:.7rem;line-height:1.6;color:var(--slate);
+  background:var(--ink);border:1px solid var(--rule-soft);border-radius:4px;
+  padding:12px;overflow-x:auto;white-space:pre;margin-top:9px;
+}
+
+/* ─────────────  EXPERIENCE  ───────────── */
+.roles{margin-top:34px;position:relative}
+.role{display:grid;grid-template-columns:150px 1fr;gap:28px;padding:24px 0;border-bottom:1px solid var(--rule-soft);position:relative}
+.role:last-child{border-bottom:0}
+.role .when{font-family:var(--mono);font-size:.71rem;letter-spacing:.08em;color:var(--slate-dim);text-transform:uppercase;padding-top:4px;font-variant-numeric:tabular-nums}
+.role .when em{display:block;font-style:normal;color:var(--flux);margin-top:3px}
+.role h3{font-family:var(--serif);font-variation-settings:'WONK' 1,'opsz' 48;font-weight:500;font-size:1.18rem;letter-spacing:-.015em;margin-bottom:2px}
+.role .org{font-family:var(--mono);font-size:.75rem;letter-spacing:.06em;color:var(--slate);margin-bottom:10px}
+.role .org a{text-decoration:none;box-shadow:inset 0 -1px 0 var(--rule)}
+.role .org a:hover{box-shadow:inset 0 -1px 0 var(--flux)}
+.role p{color:#a9b4b1;font-size:.92rem;max-width:62ch}
+.role ul{list-style:none;margin-top:9px;display:flex;flex-wrap:wrap;gap:6px}
+.role ul li{font-family:var(--mono);font-size:.66rem;letter-spacing:.07em;text-transform:uppercase;color:var(--slate-dim);border:1px solid var(--rule-soft);border-radius:20px;padding:3px 9px}
+@media(max-width:700px){.role{grid-template-columns:1fr;gap:8px}}
+
+/* ─────────────  PROJECTS  ───────────── */
+.projects{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-top:32px}
+.proj{
+  display:block;text-decoration:none;background:var(--ink-1);border:1px solid var(--rule-soft);
+  border-radius:5px;padding:20px;transition:all .22s var(--ease);position:relative;overflow:hidden;
+}
+.proj::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--flux);transform:scaleY(0);transform-origin:top;transition:transform .3s var(--ease)}
+.proj:hover{border-color:var(--rule);transform:translateY(-2px);background:var(--ink-2)}
+.proj:hover::before{transform:scaleY(1)}
+.proj .tag{font-family:var(--mono);font-size:.63rem;letter-spacing:.13em;text-transform:uppercase;color:var(--slate-dim);display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.proj .tag .stars{color:var(--signal);font-variant-numeric:tabular-nums}
+.proj h3{font-family:var(--serif);font-variation-settings:'WONK' 1,'opsz' 48;font-weight:500;font-size:1.06rem;margin-bottom:7px;letter-spacing:-.015em}
+.proj p{font-size:.85rem;color:var(--slate);line-height:1.55}
+.proj .arrow{margin-top:13px;font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--slate-dim);transition:color .2s}
+.proj:hover .arrow{color:var(--flux)}
+
+/* ─────────────  OFFSCREEN  ───────────── */
+.shots{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:32px}
+.shot{
+  position:relative;border-radius:5px;overflow:hidden;border:1px solid var(--rule-soft);
+  background:var(--ink-1);cursor:zoom-in;padding:0;display:block;width:100%;
+}
+.shot img{width:100%;height:100%;object-fit:cover;filter:grayscale(.28) contrast(1.02);opacity:.86;transition:transform .6s var(--ease),filter .4s,opacity .4s}
+.shot:hover img{transform:scale(1.045);filter:none;opacity:1}
+.shot figcaption{
+  position:absolute;left:0;right:0;bottom:0;padding:26px 14px 12px;text-align:left;
+  background:linear-gradient(to top,rgba(11,15,18,.94),transparent);
+  font-family:var(--mono);font-size:.67rem;letter-spacing:.09em;text-transform:uppercase;color:var(--bone);
+}
+.shot figcaption s{display:block;text-decoration:none;color:var(--slate-dim);margin-top:2px;letter-spacing:.06em}
+.shot--wide{grid-column:span 2;aspect-ratio:4/3}
+.shot--tall{grid-row:span 1}
+@media(max-width:820px){.shots{grid-template-columns:repeat(2,1fr)}.shot--wide{grid-column:span 2}.shot--tall{aspect-ratio:3/4}}
+
+/* lightbox */
+#box{position:fixed;inset:0;z-index:120;background:rgba(7,10,12,.96);backdrop-filter:blur(10px);
+  display:none;place-items:center;padding:52px 24px}
+#box.on{display:grid}
+#box img{max-width:min(1000px,92vw);max-height:82vh;object-fit:contain;border-radius:4px}
+#box .cap{position:absolute;bottom:22px;left:0;right:0;text-align:center;font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--slate)}
+#box button{position:absolute;background:none;border:1px solid var(--rule);color:var(--slate);
+  width:38px;height:38px;border-radius:4px;cursor:pointer;display:grid;place-items:center;transition:all .2s}
+#box button:hover{color:var(--bone);border-color:var(--slate-dim);background:var(--ink-1)}
+#box .x{top:20px;right:20px}
+#box .pv{left:20px;top:50%;transform:translateY(-50%)}
+#box .nx{right:20px;top:50%;transform:translateY(-50%)}
+#box svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+/* ─────────────  CONTACT  ───────────── */
+#contact{padding-bottom:60px}
+.contact-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:48px;margin-top:34px;align-items:start}
+@media(max-width:800px){.contact-grid{grid-template-columns:1fr;gap:30px}}
+.contact-grid p{color:var(--slate);max-width:44ch;font-size:1rem}
+.contact-list{display:flex;flex-direction:column}
+.contact-list a{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:13px 2px;border-bottom:1px solid var(--rule-soft);text-decoration:none;
+  font-family:var(--mono);font-size:.76rem;letter-spacing:.07em;color:var(--slate);transition:all .2s var(--ease);
+}
+.contact-list a:first-child{border-top:1px solid var(--rule-soft)}
+.contact-list a span:first-child{color:var(--slate-dim);text-transform:uppercase;font-size:.66rem;letter-spacing:.14em}
+.contact-list a:hover{color:var(--signal);padding-left:8px}
+
+footer{border-top:1px solid var(--rule-soft);padding:26px 0 34px;position:relative;z-index:2}
+.foot{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:.67rem;letter-spacing:.09em;text-transform:uppercase;color:var(--slate-dim)}
+
+/* toast */
+#toast{
+  position:fixed;left:50%;bottom:28px;transform:translate(-50%,18px);z-index:150;
+  background:var(--signal);color:#0b0f12;font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:9px 18px;border-radius:4px;opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .25s var(--ease);font-weight:500;
+}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* ─────────────  MOTIF ANIMATION  ───────────── */
+.motif .trace{stroke:var(--flux);fill:none;stroke-linecap:round;stroke-linejoin:round}
+.motif .ghost{stroke:var(--slate-dim);fill:none;stroke-linecap:round;opacity:.5}
+.motif .act{stroke:var(--signal);fill:none;stroke-linecap:round}
+.motif .actf{fill:var(--signal)}
+.motif .fluxf{fill:var(--flux)}
+.motif .dimf{fill:var(--slate-dim)}
+.motif .lbl{font-family:var(--mono);font-size:7px;letter-spacing:.1em;text-transform:uppercase;fill:var(--slate-dim)}
+
+@keyframes sweep{from{stroke-dashoffset:60}to{stroke-dashoffset:-420}}
+@keyframes fadeout{0%,18%{opacity:.55}55%,100%{opacity:.1}}
+@keyframes pulse{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:1;transform:scale(1.35)}}
+@keyframes drop{0%,10%{opacity:0;transform:translateY(-26px)}28%,72%{opacity:1;transform:translateY(0)}92%,100%{opacity:0;transform:translateY(0)}}
+@keyframes swap{0%,42%{opacity:1}52%,100%{opacity:0}}
+@keyframes swapIn{0%,42%{opacity:0}52%,100%{opacity:1}}
+@keyframes arc{0%{stroke-dashoffset:var(--len);opacity:0}12%{opacity:1}70%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:.25}}
+@keyframes grow{0%,20%{transform:scaleX(.45)}70%,100%{transform:scaleX(1)}}
+
+.motif .anim-sweep{stroke:var(--bone);fill:none;stroke-linecap:round;opacity:0}
+.motif.run .anim-sweep{opacity:.9;stroke-dasharray:26 420;animation:sweep 3s linear infinite}
+.motif.run .anim-fade{animation:fadeout 3.4s ease-in-out infinite alternate}
+.motif.run .anim-pulse{animation:pulse 2.1s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.motif.run .anim-drop{animation:drop 3.6s ease-in-out infinite;transform-box:fill-box}
+.motif.run .anim-swap{animation:swap 5.2s ease-in-out infinite}
+.motif.run .anim-swapin{animation:swapIn 5.2s ease-in-out infinite}
+.motif.run .anim-arc{stroke-dasharray:var(--len);animation:arc 3.2s ease-in-out infinite}
+.motif.run .anim-grow{animation:grow 3.2s ease-in-out infinite;transform-box:fill-box;transform-origin:left center}
+
+/* ── reveal ── */
+html.js .rv{opacity:0;transform:translateY(16px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+html.js .rv.in{opacity:1;transform:none}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  html.js .rv{opacity:1;transform:none}
+}
+</style>
 </head>
 <body>
+<a class="skip" href="#research">Skip to research</a>
 
-    <canvas id="game-canvas"></canvas>
+<canvas id="life" aria-hidden="true"></canvas>
+<div id="veil" aria-hidden="true"></div>
+<div id="focus" aria-hidden="true"></div>
 
-    <div class="game-controls">
-        <button class="game-btn" onclick="togglePause()"><i class="fas fa-pause" id="play-icon"></i></button>
-        <button class="game-btn" onclick="clearGrid()"><i class="fas fa-trash"></i></button>
-        <button class="game-btn" onclick="resetGrid()"><i class="fas fa-random"></i></button>
+<nav id="nav">
+  <div class="nav-in">
+    <a class="nav-mark" href="#top">Vaibhav Singh</a>
+    <div class="nav-links">
+      <a href="#research">Research</a>
+      <a href="#experience">Experience</a>
+      <a href="#projects" data-opt>Projects</a>
+      <a href="#offscreen" data-opt>Offscreen</a>
+      <a href="#contact">Contact</a>
     </div>
+  </div>
+</nav>
 
-    <div class="container">
-        
-        <header>
-            <div class="role-badge">> RESEARCH SCIENTIST & AI/ML ENGINEER</div>
-            <h1>Vaibhav Singh</h1>
-            
-            <p class="hero-summary">
-                I design and deploy <span class="highlight">end-to-end Generative AI</span>, LLM, and RAG pipelines. 
-                Specialized in productionizing scalable AI platforms and robust evaluation systems.
-                Co-authored 2 AI safety publications (CVPR, EMNLP).
-            </p>
+<main class="wrap">
 
-            <div class="stats-bar">
-                <div class="stat-item">
-                    <h4>5+ Years</h4>
-                    <p>Experience</p>
-                </div>
-                <div class="stat-item">
-                    <h4>3 Years</h4>
-                    <p>GenAI & LLM Stack</p>
-                </div>
-                <div class="stat-item">
-                    <h4>Lead</h4>
-                    <p>Teams of 4-5</p>
-                </div>
-            </div>
+<!-- ═══════════════ HERO ═══════════════ -->
+<header id="top">
+  <div class="hero-eyebrow rv"><span class="mono">LLM safety &middot; alignment &middot; test-time reasoning</span></div>
+  <h1 class="rv">Vaibhav Singh</h1>
 
-            <div class="btn-group">
-                <a href="https://github.com/itsvaibhav01" target="_blank" class="btn btn-primary">
-                    <i class="fab fa-github"></i> GitHub
-                </a>
-                <a href="https://scholar.google.com/citations?user=5tdH2eEAAAAJ&hl=en" target="_blank" class="btn btn-outline">
-                    <i class="fas fa-graduation-cap"></i> Scholar
-                </a>
-                <a href="mailto:your-email@example.com" class="btn btn-outline">
-                    <i class="fas fa-envelope"></i> Contact
-                </a>
-            </div>
-        </header>
+  <p class="lede rv">
+    I work on the space between a model's first token and its last &mdash; steering decoding away from
+    unsafe completions, choosing which examples a model gets to see, and
+    <em>intervening early</em> in a reasoning trace when it starts to go wrong.
+  </p>
+  <p class="lede rv">
+    In Tokyo, at <a href="https://www.sbintuitions.co.jp/en/" target="_blank" rel="noopener">SB Intuitions</a>.
+    Previously Axelspace, Yahoo! JAPAN and ShareChat. Engineering Physics, IIT Bombay.
+  </p>
 
-        <section id="experience">
-            <div class="section-header">
-                <i class="fas fa-rocket"></i>
-                <h2>Impact & Leadership</h2>
-            </div>
-            
-            <div class="impact-card">
-                <div class="impact-header">
-                    <div>
-                        <div class="impact-role">AI Lead</div>
-                        <div class="impact-company">@ Lombard Standard</div>
-                    </div>
-                    <div style="font-size:0.8rem; color:var(--text-muted);">PRE-SEED FUNDED</div>
-                </div>
-                <p style="color:var(--text-muted); margin-bottom:15px;">
-                    Led a team of 4-5 engineers to productionize scalable AI platforms. Built automated evaluation pipelines and ran rapid experiments to drive product maturity.
-                </p>
-                <div class="impact-metrics">
-                    <div class="metric">
-                        <span class="metric-val">Antler</span>
-                        <span class="metric-lbl">Funding Secured</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-val">$1.2K</span>
-                        <span class="metric-lbl">MRR Generated</span>
-                    </div>
-                    <div class="metric">
-                        <span class="metric-val">Production</span>
-                        <span class="metric-lbl">Scalable Platforms</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="skills">
-            <div class="section-header">
-                <i class="fas fa-terminal"></i>
-                <h2>System Specs</h2>
-            </div>
-            <div class="tech-grid">
-                <div class="tech-card">
-                    <h3>Generative AI Core</h3>
-                    <div class="skill-tags">
-                        <span class="skill-tag">Azure OpenAI</span>
-                        <span class="skill-tag">LangChain</span>
-                        <span class="skill-tag">AWS Bedrock</span>
-                        <span class="skill-tag">Pinecone (Vector DB)</span>
-                        <span class="skill-tag">RAG Pipelines</span>
-                    </div>
-                </div>
-                <div class="tech-card">
-                    <h3>Model Engineering</h3>
-                    <div class="skill-tags">
-                        <span class="skill-tag">Fine-Tuning (SFT/PEFT)</span>
-                        <span class="skill-tag">LoRA</span>
-                        <span class="skill-tag">RLHF</span>
-                        <span class="skill-tag">Multimodal (CLIP)</span>
-                        <span class="skill-tag">Vision-Language</span>
-                    </div>
-                </div>
-                <div class="tech-card">
-                    <h3>MLOps & Infrastructure</h3>
-                    <div class="skill-tags">
-                        <span class="skill-tag">Docker</span>
-                        <span class="skill-tag">Kubernetes</span>
-                        <span class="skill-tag">AWS / GCP</span>
-                        <span class="skill-tag">Python & SQL</span>
-                        <span class="skill-tag">Large-scale Eval</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="publications">
-            <div class="section-header">
-                <i class="fas fa-book"></i>
-                <h2>Research Publications</h2>
-            </div>
-            
-            <div class="pub-card">
-                <span class="venue-tag cvpr">CVPR 2025</span>
-                <h3 style="color:#fff; font-size:1.1rem; margin-bottom:5px;">Immune: Improving Safety Against Jailbreaks</h3>
-                <p style="font-size:0.9rem; color:var(--text-muted);">
-                    Proposed an inference-time defense framework leveraging safe reward models to defend against jailbreak attacks in Multi-modal LLMs.
-                </p>
-                <div class="pub-links">
-                    <a href="https://itsvaibhav01.github.io/immune-web/" target="_blank" class="pub-link">Project Page &nearr;</a>
-                    <a href="https://arxiv.org/abs/2411.18688" target="_blank" class="pub-link secondary">Read Paper &rarr;</a>
-                </div>
-            </div>
-
-            <div class="pub-card">
-                <span class="venue-tag emnlp">EMNLP 2025</span>
-                <h3 style="color:#fff; font-size:1.1rem; margin-bottom:5px;">RELIC: Reward Model Generalization</h3>
-                <p style="font-size:0.9rem; color:var(--text-muted);">
-                    A novel framework for enhancing reward model generalization in low-resource settings using few-shot examples.
-                </p>
-                <div class="pub-links">
-                     <a href="https://itsvaibhav01.github.io/Relic-web/" target="_blank" class="pub-link">Project Page &nearr;</a>
-                     <a href="https://github.com/itsvaibhav01/Relic" target="_blank" class="pub-link secondary">View Code &rarr;</a>
-                </div>
-            </div>
-        </section>
-
-        <section id="gallery">
-            <div class="section-header">
-                <i class="fas fa-camera"></i>
-                <h2>Visual Data</h2>
-            </div>
-            <div class="gallery-grid">
-                <div class="gallery-item">
-                    <img src="./img/EMNLP2024.jpeg" alt="EMNLP 2024">
-                    <div class="gallery-caption">EMNLP 2024 Presentation</div>
-                </div>
-                <div class="gallery-item">
-                    <img src="./img/Tron.jpg" alt="Tron in Tokyo">
-                    <div class="gallery-caption">Tron</div>
-                </div>
-                <div class="gallery-item">
-                    <img src="./img/Sakura.jpg" alt="Sakura">
-                    <div class="gallery-caption">Tokyo</div>
-                </div>
-            </div>
-        </section>
-
-        <footer style="text-align:center; padding: 50px 0; color: #666; font-size: 0.8rem; border-top: 1px solid var(--border);">
-            &copy; 2025 Vaibhav Singh. <br>
-            <i>Interactive Background: Conway's Game of Life</i>
-        </footer>
+  <div class="ledger rv">
+    <div>
+      <span class="k">Published at</span>
+      <b><span class="c1">CVPR</span><i>&middot;</i><span class="c2">ICML</span><i>&middot;</i><span class="c3">EMNLP</span></b>
     </div>
+    <div>
+      <span class="k">Working as</span>
+      <b>AI/ML Data Scientist</b>
+    </div>
+    <div>
+      <span class="k">Founded</span>
+      <b>Lombard Standard<i>&middot;</i>Antler</b>
+    </div>
+  </div>
 
-    <script>
-        const canvas = document.getElementById('game-canvas');
-        const ctx = canvas.getContext('2d');
-        let width, height, rows, cols;
-        const cellSize = 25; 
-        let grid = [];
-        let animationId;
-        let isPlaying = true;
-        const liveColor = 'rgba(0, 243, 255, 0.15)'; // Cyan matching theme
+  <div class="links rv">
+    <a class="lnk lnk--go" href="#research">
+      <svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="M8 15l4-6 4 3 4-7"/></svg>
+      Read the work
+    </a>
+    <a class="lnk" href="https://scholar.google.com/citations?user=5tdH2eEAAAAJ&hl=en" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M12 3L2 9l10 6 10-6-10-6z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg>
+      Scholar
+    </a>
+    <a class="lnk" href="https://github.com/itsvaibhav01" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-1-2.6c3.1-.4 6.4-1.6 6.4-7A5.4 5.4 0 0 0 20 4.8 5 5 0 0 0 19.9 1S18.7.6 16 2.5a13.4 13.4 0 0 0-7 0C6.3.6 5.1 1 5.1 1A5 5 0 0 0 5 4.8a5.4 5.4 0 0 0-1.5 3.8c0 5.4 3.3 6.6 6.4 7A3.4 3.4 0 0 0 9 18.1V22"/></svg>
+      GitHub
+    </a>
+    <a class="lnk" href="https://www.linkedin.com/in/vaibhav-singh-324457140/" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+      LinkedIn
+    </a>
+  </div>
 
-        function init() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-            cols = Math.ceil(width / cellSize);
-            rows = Math.ceil(height / cellSize);
-            grid = new Array(cols).fill(null).map(() => new Array(rows).fill(0));
-            randomizeGrid();
-            animate();
-        }
+  <p class="hero-note rv">
+    <b>&#8627;</b> Behind this page: Conway's Game of Life. Click anywhere to perturb it &mdash; a few cells changes everything.
+  </p>
+</header>
 
-        function randomizeGrid() {
-            for (let i = 0; i < cols; i++) {
-                for (let j = 0; j < rows; j++) {
-                    grid[i][j] = Math.random() > 0.9 ? 1 : 0;
-                }
-            }
-        }
+<!-- ═══════════════ RESEARCH ═══════════════ -->
+<section id="research">
+  <div class="head rv">
+    <h2>Research</h2>
+    <div class="meta">CVPR &middot; ICML &middot; EMNLP &middot; 2025&ndash;2026</div>
+  </div>
+  <p class="head-sub rv">
+    One question runs through all of it: a model is already generating &mdash; what is the cheapest thing you can
+    change, and when, to make the output better? Each diagram below is drawn in the same grammar.
+  </p>
+  <div class="legend rv">
+    <span class="a"><i></i>the process running</span>
+    <span class="b"><i></i>the intervention</span>
+    <span class="c"><i></i>what happens without it</span>
+  </div>
 
-        function draw() {
-            ctx.clearRect(0, 0, width, height);
-            ctx.fillStyle = liveColor;
-            for (let i = 0; i < cols; i++) {
-                for (let j = 0; j < rows; j++) {
-                    if (grid[i][j]) {
-                        ctx.beginPath();
-                        ctx.arc(i * cellSize + cellSize/2, j * cellSize + cellSize/2, cellSize/3, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                }
-            }
-        }
+  <div class="filters rv" role="group" aria-label="Filter papers by topic">
+    <button data-f="all" aria-pressed="true">All</button>
+    <button data-f="safety" aria-pressed="false">Safety &amp; Alignment</button>
+    <button data-f="icl" aria-pressed="false">In-Context Learning</button>
+    <button data-f="reasoning" aria-pressed="false">Test-Time Reasoning</button>
+    <button data-f="multimodal" aria-pressed="false">Multimodal</button>
+  </div>
 
-        function update() {
-            let nextGrid = grid.map(arr => [...arr]);
-            for (let i = 0; i < cols; i++) {
-                for (let j = 0; j < rows; j++) {
-                    let neighbors = 0;
-                    for (let x = -1; x < 2; x++) {
-                        for (let y = -1; y < 2; y++) {
-                            if (x === 0 && y === 0) continue;
-                            const col = (i + x + cols) % cols;
-                            const row = (j + y + rows) % rows;
-                            neighbors += grid[col][row];
-                        }
-                    }
-                    if (grid[i][j] === 1 && (neighbors < 2 || neighbors > 3)) nextGrid[i][j] = 0;
-                    else if (grid[i][j] === 0 && neighbors === 3) nextGrid[i][j] = 1;
-                }
-            }
-            grid = nextGrid;
-        }
+  <div class="papers" id="papers">
 
-        function animate() {
-            if (isPlaying) { update(); draw(); }
-            setTimeout(() => { animationId = requestAnimationFrame(animate); }, 80);
-        }
+    <!-- ── SafeThink ── -->
+    <article class="paper rv" data-themes="safety reasoning">
+      <div class="motif" data-motif>
+        <svg viewBox="0 0 320 170" role="img" aria-label="A reasoning trajectory drifting into the unsafe band; an amber nudge at step two bends it back into the safe band.">
+          <rect x="14" y="18" width="292" height="56" fill="var(--flux)" opacity=".055" rx="3"/>
+          <rect x="14" y="106" width="292" height="48" fill="var(--danger)" opacity=".07" rx="3"/>
+          <line x1="14" y1="92" x2="306" y2="92" stroke="var(--rule)" stroke-width="1" stroke-dasharray="3 4"/>
+          <text class="lbl" x="20" y="31">safe</text>
+          <text class="lbl" x="20" y="149">jailbroken</text>
+          <path class="ghost anim-fade" d="M22 68 C 70 74, 96 96, 140 116 S 240 140, 300 144" stroke-width="1.6" stroke-dasharray="4 5"/>
+          <path class="trace" d="M22 68 C 52 70, 66 66, 82 60 S 140 42, 190 40 S 262 44, 300 42" stroke-width="2.2"/>
+          <path class="anim-sweep" d="M22 68 C 52 70, 66 66, 82 60 S 140 42, 190 40 S 262 44, 300 42" stroke-width="2.4"/>
+          <line class="act" x1="82" y1="42" x2="82" y2="84" stroke-width="1.4" stroke-dasharray="3 3" opacity=".8"/>
+          <circle class="actf anim-pulse" cx="82" cy="62" r="4.2"/>
+          <text class="lbl" x="92" y="90" fill="var(--signal)">step 2</text>
+          <circle class="fluxf" cx="300" cy="42" r="3"/>
+          <circle class="dimf" cx="300" cy="144" r="3" opacity=".5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="venue icml"><i></i>ICML 2026</div>
+        <h3>Safety Recovery in Reasoning Models Is Only a Few Early Steering Steps Away</h3>
+        <p class="authors">Soumya Suvra Ghosal, Souradip Chakraborty, <b>Vaibhav Singh</b>, Furong Huang, Dinesh Manocha, Amrit Singh Bedi</p>
+        <p class="what">
+          RL post-training makes multimodal reasoning models better at thinking and worse at refusing.
+          <b>SafeThink</b> watches the reasoning trace with a safety reward model and, only when a threshold
+          is crossed, injects a short corrective prefix. Safety is treated as a constraint to satisfy, not a score to maximise.
+        </p>
+        <div class="result">Attack success down <b>30&ndash;60%</b> across six open MLRMs and four jailbreak benchmarks.<br>LlamaV-o1 on JailbreakV-28K: <b>63.33% &rarr; 5.74%</b>, with reasoning accuracy intact.</div>
+        <div class="paper-links">
+          <a class="plink" href="https://arxiv.org/abs/2602.11096" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>arXiv</a>
+          <a class="plink" href="https://itsvaibhav01.github.io/SafeThink-web/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20"/></svg>Project page</a>
+          <a class="plink" href="https://github.com/itsvaibhav01/SafeThink" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>Code</a>
+          <button class="plink" data-toggle>Abstract &amp; BibTeX</button>
+        </div>
+        <div class="expand"><div class="expand-in"><div class="expand-body">
+          <h4>Abstract</h4>
+          <p>Reinforcement-learning-based post-training for explicit chain-of-thought reasoning improves the reasoning ability of multimodal large reasoning models, but it can simultaneously degrade safety alignment and raise jailbreak success rates. We propose SafeThink, a lightweight inference-time defense that treats safety recovery as a satisficing constraint rather than a maximization objective: it monitors the evolving reasoning trace with a safety reward model and conditionally injects an optimized short corrective prefix only when the safety threshold is violated. Across six open-source MLRMs and four jailbreak benchmarks, SafeThink reduces attack success rates by 30&ndash;60% while preserving reasoning performance. Empirically, safety recovery is often only a few steering steps away: intervening in the first one to three reasoning steps typically suffices to redirect the full generation toward safe completions.</p>
+          <div class="bib">
+            <h4>BibTeX</h4>
+            <pre data-bib>@inproceedings{ghosal2026safethink,
+  title     = {Safety Recovery in Reasoning Models Is Only a Few Early Steering Steps Away},
+  author    = {Ghosal, Soumya Suvra and Chakraborty, Souradip and Singh, Vaibhav and
+               Huang, Furong and Manocha, Dinesh and Bedi, Amrit Singh},
+  booktitle = {Proceedings of the 43rd International Conference on Machine Learning (ICML)},
+  year      = {2026}
+}</pre>
+            <div class="paper-links"><button class="plink" data-copy><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy BibTeX</button></div>
+          </div>
+        </div></div></div>
+      </div>
+    </article>
 
-        canvas.addEventListener('mousemove', (e) => {
-            const x = Math.floor(e.clientX / cellSize);
-            const y = Math.floor(e.clientY / cellSize);
-            if(x >= 0 && x < cols && y >= 0 && y < rows) {
-                grid[x][y] = 1;
-                draw();
-            }
-        });
+    <!-- ── ThinkRetrieve ── -->
+    <article class="paper rv" data-themes="reasoning icl">
+      <div class="motif" data-motif>
+        <svg viewBox="0 0 320 170" role="img" aria-label="A chain of reasoning steps with worked examples dropping in from a corpus shelf above.">
+          <text class="lbl" x="16" y="24">solved-example corpus</text>
+          <g class="dimf" opacity=".45">
+            <rect x="16" y="32" width="22" height="13" rx="2"/><rect x="46" y="32" width="22" height="13" rx="2"/>
+            <rect x="76" y="32" width="22" height="13" rx="2"/><rect x="106" y="32" width="22" height="13" rx="2"/>
+            <rect x="136" y="32" width="22" height="13" rx="2"/><rect x="166" y="32" width="22" height="13" rx="2"/>
+            <rect x="196" y="32" width="22" height="13" rx="2"/><rect x="226" y="32" width="22" height="13" rx="2"/>
+            <rect x="256" y="32" width="22" height="13" rx="2"/><rect x="286" y="32" width="18" height="13" rx="2"/>
+          </g>
+          <line class="trace" x1="24" y1="126" x2="296" y2="126" stroke-width="1.6" opacity=".55"/>
+          <line class="anim-sweep" x1="24" y1="126" x2="296" y2="126" stroke-width="2"/>
+          <g>
+            <rect x="20" y="114" width="46" height="24" rx="3" fill="none" stroke="var(--flux)" stroke-width="1.4"/>
+            <rect x="78" y="114" width="46" height="24" rx="3" fill="none" stroke="var(--flux)" stroke-width="1.4"/>
+            <rect x="136" y="114" width="46" height="24" rx="3" fill="none" stroke="var(--flux)" stroke-width="1.4"/>
+            <rect x="194" y="114" width="46" height="24" rx="3" fill="none" stroke="var(--flux)" stroke-width="1.4"/>
+            <rect x="252" y="114" width="46" height="24" rx="3" fill="none" stroke="var(--flux)" stroke-width="1.4"/>
+          </g>
+          <g class="anim-drop" style="animation-delay:0s">
+            <line class="act" x1="101" y1="52" x2="101" y2="110" stroke-width="1.2" stroke-dasharray="3 3"/>
+            <rect x="90" y="70" width="22" height="13" rx="2" class="actf"/>
+          </g>
+          <g class="anim-drop" style="animation-delay:.45s">
+            <line class="act" x1="159" y1="52" x2="159" y2="110" stroke-width="1.2" stroke-dasharray="3 3"/>
+            <rect x="148" y="70" width="22" height="13" rx="2" class="actf"/>
+          </g>
+          <g class="anim-drop" style="animation-delay:.9s">
+            <line class="act" x1="217" y1="52" x2="217" y2="110" stroke-width="1.2" stroke-dasharray="3 3"/>
+            <rect x="206" y="70" width="22" height="13" rx="2" class="actf"/>
+          </g>
+          <text class="lbl" x="16" y="156">reasoning trace &rarr;</text>
+        </svg>
+      </div>
+      <div>
+        <div class="venue emnlp"><i></i>EMNLP 2026 Findings<s>&nbsp;&middot;&nbsp;first author</s></div>
+        <h3>ThinkRetrieve: Retrieval-Augmented Reasoning Traces for Test-Time Scaling</h3>
+        <p class="authors"><b>Vaibhav Singh</b>, Soumya Suvra Ghosal, Sarvesh Gharat, Soumyabrata Pal, Ramasuri Narayanam, Dinesh Manocha</p>
+        <p class="what">
+          Longer chains of thought stop paying off once errors start compounding. <b>ThinkRetrieve</b> pulls
+          solved examples into the trace <em>at each reasoning step</em>, so retrieval supplies procedure &mdash;
+          how to attack the next move &mdash; rather than another fact.
+        </p>
+        <div class="result">Up to <b>60%</b> relative gain on AIME 2025, consistent across five reasoning models from <b>1.5B to 8B</b>.</div>
+        <div class="paper-links">
+          <a class="plink" href="https://arxiv.org/abs/2608.10928" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>arXiv</a>
+          <a class="plink" href="https://itsvaibhav01.github.io/ThinkRetrieve/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20"/></svg>Project page</a>
+          <a class="plink" href="https://github.com/itsvaibhav01/ThinkRetrieve" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>Code</a>
+          <button class="plink" data-toggle>Abstract &amp; BibTeX</button>
+        </div>
+        <div class="expand"><div class="expand-in"><div class="expand-body">
+          <h4>Abstract</h4>
+          <p>Test-time scaling in large reasoning models is limited by diminishing returns: extending the reasoning chain accumulates errors rather than correcting them. We introduce ThinkRetrieve, which augments the reasoning traces of LRMs with dynamically retrieved solved examples at each reasoning step. By incorporating relevant exemplars from a corpus of problem&ndash;solution pairs directly into the thinking process, the method supplies procedural guidance rather than purely factual context. Across five reasoning models spanning 1.5B to 8B parameters and multiple benchmarks, ThinkRetrieve gives consistent improvements, including up to 60% relative gains on AIME 2025.</p>
+          <div class="bib">
+            <h4>BibTeX</h4>
+            <pre data-bib>@inproceedings{singh2026thinkretrieve,
+  title     = {ThinkRetrieve: Retrieval-Augmented Reasoning Traces for Test-Time Scaling},
+  author    = {Singh, Vaibhav and Ghosal, Soumya Suvra and Gharat, Sarvesh and
+               Pal, Soumyabrata and Narayanam, Ramasuri and Manocha, Dinesh},
+  booktitle = {Findings of the Association for Computational Linguistics: EMNLP 2026},
+  year      = {2026}
+}</pre>
+            <div class="paper-links"><button class="plink" data-copy><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy BibTeX</button></div>
+          </div>
+        </div></div></div>
+      </div>
+    </article>
 
-        function togglePause() { isPlaying = !isPlaying; document.getElementById('play-icon').className = isPlaying ? 'fas fa-pause' : 'fas fa-play'; }
-        function clearGrid() { grid = grid.map(row => row.map(() => 0)); draw(); }
-        function resetGrid() { randomizeGrid(); draw(); }
-        window.addEventListener('resize', init);
-        init();
-    </script>
+    <!-- ── KITE ── -->
+    <article class="paper rv" data-themes="icl">
+      <div class="motif" data-motif>
+        <svg viewBox="0 0 320 170" role="img" aria-label="An embedding space where nearest-neighbour selection clumps around the query, while KITE spreads its picks across the space.">
+          <g class="dimf" opacity=".55">
+            <circle cx="34" cy="46" r="2.4"/><circle cx="62" cy="30" r="2.4"/><circle cx="88" cy="58" r="2.4"/>
+            <circle cx="46" cy="84" r="2.4"/><circle cx="72" cy="108" r="2.4"/><circle cx="30" cy="126" r="2.4"/>
+            <circle cx="104" cy="132" r="2.4"/><circle cx="118" cy="86" r="2.4"/><circle cx="140" cy="52" r="2.4"/>
+            <circle cx="150" cy="118" r="2.4"/><circle cx="176" cy="66" r="2.4"/><circle cx="182" cy="140" r="2.4"/>
+            <circle cx="200" cy="98" r="2.4"/><circle cx="214" cy="38" r="2.4"/><circle cx="236" cy="126" r="2.4"/>
+            <circle cx="252" cy="70" r="2.4"/><circle cx="272" cy="106" r="2.4"/><circle cx="288" cy="46" r="2.4"/>
+            <circle cx="292" cy="140" r="2.4"/><circle cx="128" cy="26" r="2.4"/><circle cx="248" cy="22" r="2.4"/>
+            <circle cx="96" cy="16" r="2.4"/><circle cx="206" cy="150" r="2.4"/><circle cx="58" cy="150" r="2.4"/>
+          </g>
+          <!-- k-NN: a tight clump -->
+          <g class="anim-swap">
+            <circle cx="160" cy="85" r="34" fill="none" stroke="var(--slate-dim)" stroke-width="1" stroke-dasharray="3 4" opacity=".55"/>
+            <g class="fluxf" opacity=".85">
+              <circle cx="140" cy="72" r="3.4"/><circle cx="176" cy="76" r="3.4"/><circle cx="150" cy="104" r="3.4"/>
+              <circle cx="180" cy="100" r="3.4"/><circle cx="160" cy="60" r="3.4"/>
+            </g>
+            <text class="lbl" x="16" y="164">k-NN &mdash; near, but nearly identical</text>
+          </g>
+          <!-- KITE: spread + kernel neighbourhoods -->
+          <g class="anim-swapin">
+            <g fill="none" stroke="var(--signal)" stroke-width="1" opacity=".22">
+              <circle cx="62" cy="30" r="17"/><circle cx="104" cy="132" r="17"/><circle cx="200" cy="98" r="17"/>
+              <circle cx="252" cy="70" r="17"/><circle cx="140" cy="52" r="17"/>
+            </g>
+            <g class="actf">
+              <circle cx="62" cy="30" r="3.6"/><circle cx="104" cy="132" r="3.6"/><circle cx="200" cy="98" r="3.6"/>
+              <circle cx="252" cy="70" r="3.6"/><circle cx="140" cy="52" r="3.6"/>
+            </g>
+            <text class="lbl" x="16" y="164" fill="var(--signal)">KITE &mdash; spread, submodular, kernelized</text>
+          </g>
+          <circle cx="160" cy="85" r="6" fill="none" stroke="var(--bone)" stroke-width="1.5"/>
+          <circle cx="160" cy="85" r="2" fill="var(--bone)"/>
+          <text class="lbl" x="170" y="88" fill="var(--bone)">query</text>
+        </svg>
+      </div>
+      <div>
+        <div class="venue emnlp"><i></i>EMNLP 2026 Findings<s>&nbsp;&middot;&nbsp;first author</s></div>
+        <h3>KITE: Kernelized and Information Theoretic Exemplars for In-Context Learning</h3>
+        <p class="authors"><b>Vaibhav Singh</b>, Soumya Suvra Ghosal, Kapu Nirmal Joshua, Soumyabrata Pal, Sayak Ray Chowdhury</p>
+        <p class="what">
+          The context window is small, so example choice is the whole game. Nearest-neighbour retrieval like KATE
+          returns five near-duplicates. <b>KITE</b> reframes selection as minimising prediction error <em>for this
+          one query</em>, derives an approximately submodular objective, and picks greedily &mdash; with a guarantee.
+        </p>
+        <div class="result">Kernel trick for high-dimensional feature spaces + an optimal-design regulariser that forces diversity.<br>Beats standard retrieval across a suite of label-scarce classification tasks.</div>
+        <div class="paper-links">
+          <a class="plink" href="https://arxiv.org/abs/2509.15676" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>arXiv</a>
+          <a class="plink" href="https://openreview.net/forum?id=OiDYdsovrf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M12 20h9M3 20h4l11-11a2.8 2.8 0 0 0-4-4L3 16v4z"/></svg>OpenReview</a>
+          <a class="plink" href="https://github.com/itsvaibhav01/KITE" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>Code</a>
+          <button class="plink" data-toggle>Abstract &amp; BibTeX</button>
+        </div>
+        <div class="expand"><div class="expand-in"><div class="expand-body">
+          <h4>Abstract</h4>
+          <p>In-context learning has emerged as a powerful paradigm for adapting large language models to new and data-scarce tasks using only a few carefully selected task-specific examples presented in the prompt. However, given the limited context size of LLMs, a fundamental question arises: which examples should be selected to maximize performance on a given user query? While nearest-neighbor-based methods like KATE have been widely adopted, they suffer from well-known drawbacks in high-dimensional embedding spaces, including poor generalization and a lack of diversity. We study example selection from a principled, information-theory-driven perspective. We model an LLM as a linear function over input embeddings and frame example selection as a query-specific optimization problem: selecting a subset of exemplars from a larger bank that minimizes the prediction error on a specific query. We derive a principled surrogate objective that is approximately submodular, enabling a greedy algorithm with an approximation guarantee, and further (i) incorporate the kernel trick to operate in high-dimensional feature spaces without explicit mappings, and (ii) introduce an optimal-design-based regularizer to encourage diversity. Empirically we show significant improvements over standard retrieval methods across a suite of classification tasks.</p>
+          <div class="bib">
+            <h4>BibTeX</h4>
+            <pre data-bib>@inproceedings{singh2026kite,
+  title     = {KITE: Kernelized and Information Theoretic Exemplars for In-Context Learning},
+  author    = {Singh, Vaibhav and Ghosal, Soumya Suvra and Joshua, Kapu Nirmal and
+               Pal, Soumyabrata and Chowdhury, Sayak Ray},
+  booktitle = {Findings of the Association for Computational Linguistics: EMNLP 2026},
+  year      = {2026}
+}</pre>
+            <div class="paper-links"><button class="plink" data-copy><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy BibTeX</button></div>
+          </div>
+        </div></div></div>
+      </div>
+    </article>
+
+    <!-- ── IMMUNE ── -->
+    <article class="paper rv" data-themes="safety multimodal">
+      <div class="motif" data-motif>
+        <svg viewBox="0 0 320 170" role="img" aria-label="A decoding tree where a safe reward model gates each branch point, pruning unsafe continuations and keeping one safe path lit.">
+          <g class="ghost anim-fade" stroke-width="1.4" stroke-dasharray="4 4">
+            <path d="M30 85 L108 44 M108 44 L190 28 M108 44 L190 60"/>
+            <path d="M30 85 L108 128 M108 128 L190 112 M108 128 L190 146"/>
+          </g>
+          <g class="dimf anim-fade">
+            <circle cx="108" cy="44" r="3"/><circle cx="190" cy="28" r="3"/><circle cx="190" cy="60" r="3"/>
+            <circle cx="108" cy="128" r="3"/><circle cx="190" cy="112" r="3"/><circle cx="190" cy="146" r="3"/>
+          </g>
+          <path class="trace" d="M30 85 L108 85 L190 85 L268 85" stroke-width="2.4"/>
+          <path class="anim-sweep" d="M30 85 L108 85 L190 85 L268 85" stroke-width="2.6"/>
+          <circle class="fluxf" cx="30" cy="85" r="4"/>
+          <g class="anim-pulse">
+            <path class="actf" d="M108 77 L116 85 L108 93 L100 85 Z"/>
+          </g>
+          <g class="anim-pulse" style="animation-delay:.5s">
+            <path class="actf" d="M190 77 L198 85 L190 93 L182 85 Z"/>
+          </g>
+          <circle cx="268" cy="85" r="6" fill="none" stroke="var(--flux)" stroke-width="1.6"/>
+          <circle class="fluxf" cx="268" cy="85" r="2.4"/>
+          <text class="lbl" x="90" y="108" fill="var(--signal)">safe reward gate</text>
+          <text class="lbl" x="16" y="164">controlled decoding</text>
+        </svg>
+      </div>
+      <div>
+        <div class="venue cvpr"><i></i>CVPR 2025</div>
+        <h3>IMMUNE: Improving Safety Against Jailbreaks in Multi-modal LLMs via Inference-Time Alignment</h3>
+        <p class="authors">Soumya Suvra Ghosal, Souradip Chakraborty, <b>Vaibhav Singh</b>, Tianrui Guan, Mengdi Wang, Alvaro Velasquez, Ahmad Beirami, Furong Huang, Dinesh Manocha, Amrit Singh Bedi</p>
+        <p class="what">
+          Safety training on the base model does not survive contact with an adversarial image.
+          <b>IMMUNE</b> leaves the weights alone and moves the defense into decoding: a safe reward model
+          scores continuations as they are generated, so unsafe branches never get chosen. With a formal
+          guarantee on the aligned distribution it converges to.
+        </p>
+        <div class="result">On LLaVA-1.6, attack success down <b>57.82%</b> vs. the base MLLM and <b>16.78%</b> vs. the previous best defense &mdash; general capability unchanged.</div>
+        <div class="paper-links">
+          <a class="plink" href="https://arxiv.org/abs/2411.18688" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>arXiv</a>
+          <a class="plink" href="https://itsvaibhav01.github.io/immune-web/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20"/></svg>Project page</a>
+          <a class="plink" href="https://github.com/itsvaibhav01/Immune" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>Code</a>
+          <button class="plink" data-toggle>Abstract &amp; BibTeX</button>
+        </div>
+        <div class="expand"><div class="expand-in"><div class="expand-body">
+          <h4>Abstract</h4>
+          <p>With the widespread deployment of multimodal large language models for visual reasoning, improving their safety has become crucial. Recent studies show that despite safety-alignment training, these models remain vulnerable to jailbreak attacks. We introduce IMMUNE, an inference-time defense framework that leverages a safe reward model through controlled decoding to defend against jailbreak attacks. Beyond providing a mathematical characterisation of the approach, extensive evaluation across recent MLLMs and attack strategies demonstrates its effectiveness: on LLaVA-1.6, IMMUNE reduces the attack success rate by 57.82% and 16.78% compared to the base MLLM and the state-of-the-art defense strategy respectively, while preserving the model's original capabilities.</p>
+          <div class="bib">
+            <h4>BibTeX</h4>
+            <pre data-bib>@inproceedings{ghosal2025immune,
+  title     = {Immune: Improving Safety Against Jailbreaks in Multi-modal LLMs
+               via Inference-Time Alignment},
+  author    = {Ghosal, Soumya Suvra and Chakraborty, Souradip and Singh, Vaibhav and
+               Guan, Tianrui and Wang, Mengdi and Velasquez, Alvaro and Beirami, Ahmad and
+               Huang, Furong and Manocha, Dinesh and Bedi, Amrit Singh},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and
+               Pattern Recognition (CVPR)},
+  year      = {2025}
+}</pre>
+            <div class="paper-links"><button class="plink" data-copy><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy BibTeX</button></div>
+          </div>
+        </div></div></div>
+      </div>
+    </article>
+
+    <!-- ── RELIC ── -->
+    <article class="paper rv" data-themes="safety icl">
+      <div class="motif" data-motif>
+        <svg viewBox="0 0 320 170" role="img" aria-label="Exemplars retrieved from a high-resource example bank widen the margin between a preferred and a rejected response.">
+          <text class="lbl" x="16" y="26">high-resource bank</text>
+          <g class="dimf" opacity=".4">
+            <circle cx="30" cy="48" r="2.6"/><circle cx="58" cy="62" r="2.6"/><circle cx="26" cy="86" r="2.6"/>
+            <circle cx="52" cy="104" r="2.6"/><circle cx="34" cy="124" r="2.6"/><circle cx="66" cy="132" r="2.6"/>
+            <circle cx="70" cy="40" r="2.6"/><circle cx="44" cy="146" r="2.6"/>
+          </g>
+          <g class="actf"><circle cx="58" cy="62" r="3.6"/><circle cx="52" cy="104" r="3.6"/><circle cx="26" cy="86" r="3.6"/></g>
+          <g class="act anim-arc" style="--len:130" stroke-width="1.3" fill="none">
+            <path d="M58 62 Q 108 46 148 66"/>
+          </g>
+          <g class="act anim-arc" style="--len:130;animation-delay:.35s" stroke-width="1.3" fill="none">
+            <path d="M26 86 Q 92 74 148 84"/>
+          </g>
+          <g class="act anim-arc" style="--len:130;animation-delay:.7s" stroke-width="1.3" fill="none">
+            <path d="M52 104 Q 106 122 148 108"/>
+          </g>
+          <text class="lbl" x="152" y="54">preferred</text>
+          <rect class="anim-grow" x="152" y="60" width="132" height="12" rx="2" fill="var(--flux)" opacity=".85"/>
+          <text class="lbl" x="152" y="130">rejected</text>
+          <rect x="152" y="98" width="62" height="12" rx="2" class="dimf" opacity=".55"/>
+          <line class="act" x1="292" y1="72" x2="292" y2="98" stroke-width="1.4"/>
+          <line class="act" x1="288" y1="72" x2="296" y2="72" stroke-width="1.4"/>
+          <line class="act" x1="288" y1="98" x2="296" y2="98" stroke-width="1.4"/>
+          <text class="lbl" x="252" y="90" fill="var(--signal)">margin</text>
+        </svg>
+      </div>
+      <div>
+        <div class="venue emnlp"><i></i>EMNLP 2025 Findings</div>
+        <h3>RELIC: Enhancing Reward Model Generalization for Low-Resource Indic Languages with Few-Shot Examples</h3>
+        <p class="authors">Soumya Suvra Ghosal, <b>Vaibhav Singh</b>, Akash Ghosh, Soumyabrata Pal, Subhadip Baidya, Sriparna Saha, Dinesh Manocha</p>
+        <p class="what">
+          Open multilingual reward models are trained on high-resource preference data, so their reward signal
+          for Indic languages is close to noise. <b>RELIC</b> trains a retriever with a pairwise ranking objective
+          to pull in-context examples from auxiliary high-resource languages &mdash; specifically the ones that
+          sharpen the gap between a preferred and a rejected response.
+        </p>
+        <div class="result">Bodo with a LLaMA-3.2-3B reward model: <b>+12.81%</b> accuracy over zero-shot and <b>+10.13%</b> over the best prior selection method, across PKU-SafeRLHF, WebGPT and HH-RLHF.</div>
+        <div class="paper-links">
+          <a class="plink" href="https://arxiv.org/abs/2506.16502" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>arXiv</a>
+          <a class="plink" href="https://aclanthology.org/2025.findings-emnlp.79/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>ACL Anthology</a>
+          <a class="plink" href="https://itsvaibhav01.github.io/Relic-web/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20"/></svg>Project page</a>
+          <a class="plink" href="https://github.com/itsvaibhav01/Relic" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>Code</a>
+          <button class="plink" data-toggle>Abstract &amp; BibTeX</button>
+        </div>
+        <div class="expand"><div class="expand-in"><div class="expand-body">
+          <h4>Abstract</h4>
+          <p>Reward models are essential for aligning large language models with human preferences, yet most open-source multilingual reward models are trained primarily on preference data in high-resource languages, producing unreliable reward signals for low-resource Indic languages. We propose RELIC, an in-context learning framework for reward modeling in low-resource Indic languages. RELIC trains a retriever with a pairwise ranking objective to select in-context examples from auxiliary high-resource languages that most effectively highlight the distinction between preferred and less-preferred responses. Experiments on PKU-SafeRLHF, WebGPT and HH-RLHF show that RELIC significantly improves reward model accuracy for low-resource Indic languages; on Bodo, using a LLaMA-3.2-3B reward model, RELIC achieves 12.81% and 10.13% improvements over zero-shot prompting and the state-of-the-art example selection method respectively.</p>
+          <div class="bib">
+            <h4>BibTeX</h4>
+            <pre data-bib>@inproceedings{ghosal2025relic,
+  title     = {RELIC: Enhancing Reward Model Generalization for Low-Resource Indic
+               Languages with Few-Shot Examples},
+  author    = {Ghosal, Soumya Suvra and Singh, Vaibhav and Ghosh, Akash and
+               Pal, Soumyabrata and Baidya, Subhadip and Saha, Sriparna and Manocha, Dinesh},
+  booktitle = {Findings of the Association for Computational Linguistics: EMNLP 2025},
+  year      = {2025}
+}</pre>
+            <div class="paper-links"><button class="plink" data-copy><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy BibTeX</button></div>
+          </div>
+        </div></div></div>
+      </div>
+    </article>
+
+  </div>
+  <p class="head-sub rv" style="margin-top:26px">
+    Frequent collaborators: Soumya Suvra Ghosal, Soumyabrata Pal, Souradip Chakraborty,
+    Dinesh Manocha and Amrit Singh Bedi (University of Maryland &middot; Adobe Research &middot; UCF).
+  </p>
+</section>
+
+<!-- ═══════════════ EXPERIENCE ═══════════════ -->
+<section id="experience">
+  <div class="head rv">
+    <h2>Experience</h2>
+    <div class="meta">Tokyo, Japan</div>
+  </div>
+  <p class="head-sub rv">Research is one half. The other half is shipping models that have to survive real traffic.</p>
+
+  <div class="roles">
+    <article class="role rv">
+      <div class="when">Present<em>Tokyo, JP</em></div>
+      <div>
+        <h3>Senior Data Scientist</h3>
+        <div class="org"><a href="https://www.sbintuitions.co.jp/en/" target="_blank" rel="noopener">SB Intuitions</a> &middot; Creative Vision Team, Multimodal AI Dept.</div>
+        <p>Image generation models, and world models trained from scratch. Building the datasets they learn from, and the evaluation that tells you whether any of it actually worked.</p>
+        <ul><li>Image Generation</li><li>World Models</li><li>Training from Scratch</li><li>Dataset Curation</li><li>Model Evaluation</li></ul>
+      </div>
+    </article>
+
+    <article class="role rv">
+      <div class="when">Previously<em>Tokyo, JP</em></div>
+      <div>
+        <h3>Senior Data Scientist</h3>
+        <div class="org"><a href="https://www.axelspace.com/" target="_blank" rel="noopener">Axelspace</a></div>
+        <p>Computer vision for microsatellite earth observation &mdash; models that read satellite imagery, and the infrastructure that kept them running.</p>
+        <ul><li>Computer Vision</li><li>Satellite Imagery</li><li>PyTorch</li><li>Kubernetes</li></ul>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ═══════════════ PROJECTS ═══════════════ -->
+<section id="projects">
+  <div class="head rv">
+    <h2>Projects</h2>
+    <div class="meta">Open source &middot; before the papers</div>
+  </div>
+  <p class="head-sub rv">Things built for the sake of building them. Most predate the research, all are on GitHub.</p>
+
+  <div class="projects">
+    <a class="proj rv" href="https://github.com/itsvaibhav01/Omegle-Chatbot" target="_blank" rel="noopener">
+      <div class="tag"><span>Python &middot; Bot</span><span class="stars">&#9733; 10</span></div>
+      <h3>Omegle Chatbot</h3>
+      <p>A conversational bot that holds its own on Omegle, built on ChatterBot to promote social content.</p>
+      <div class="arrow">Repository &nearr;</div>
+    </a>
+
+    <a class="proj rv" href="https://www.youtube.com/watch?v=3qsbb-eel9E" target="_blank" rel="noopener">
+      <div class="tag"><span>ML &middot; Hackathon</span><span class="stars">&#9733; 4</span></div>
+      <h3>FactGuard</h3>
+      <p>An AI-powered reality check for social media &mdash; claim detection and verification on posts as they spread.</p>
+      <div class="arrow">Watch the demo &nearr;</div>
+    </a>
+
+    <a class="proj rv" href="https://github.com/itsvaibhav01/EthBox" target="_blank" rel="noopener">
+      <div class="tag"><span>Solidity &middot; JS</span><span class="stars">&#9733; 4</span></div>
+      <h3>EthBox</h3>
+      <p>Blockchain-backed video KYC &mdash; identity verification that is auditable without handing custody of the video to anyone.</p>
+      <div class="arrow">Repository &nearr;</div>
+    </a>
+
+    <a class="proj rv" href="https://github.com/itsvaibhav01/Extended-Agriculture-Vision-Dataset" target="_blank" rel="noopener">
+      <div class="tag"><span>Dataset &middot; CV</span><span class="stars"></span></div>
+      <h3>Extended Agriculture-Vision</h3>
+      <p>Aerial farmland imagery for semantic segmentation, extended and maintained with collaborators.</p>
+      <div class="arrow">Repository &nearr;</div>
+    </a>
+
+    <a class="proj rv" href="https://github.com/itsvaibhav01/pytorrent" target="_blank" rel="noopener">
+      <div class="tag"><span>Python &middot; Networking</span><span class="stars"></span></div>
+      <h3>pytorrent</h3>
+      <p>A BitTorrent client written from the protocol up. Small, readable, and it actually downloads things.</p>
+      <div class="arrow">Repository &nearr;</div>
+    </a>
+
+    <a class="proj rv" href="https://github.com/itsvaibhav01?tab=repositories" target="_blank" rel="noopener">
+      <div class="tag"><span>More</span><span class="stars"></span></div>
+      <h3>Everything else</h3>
+      <p>Subtitle alignment, safety baselines, half-finished experiments. The full repository list.</p>
+      <div class="arrow">github.com/itsvaibhav01 &nearr;</div>
+    </a>
+  </div>
+</section>
+
+<!-- ═══════════════ OFFSCREEN ═══════════════ -->
+<section id="offscreen">
+  <div class="head rv">
+    <h2>Offscreen</h2>
+    <div class="meta">Conferences &middot; Tokyo</div>
+  </div>
+  <p class="head-sub rv">Where the work happens, and where it doesn't.</p>
+
+  <div class="shots">
+    <button class="shot shot--wide rv" data-shot="0">
+      <img src="./img/EMNLP2024.jpeg" alt="Vaibhav Singh at the EMNLP 2024 conference backdrop in Miami" loading="lazy" width="4032" height="3024">
+      <figcaption>EMNLP 2024<s>Miami, Florida</s></figcaption>
+    </button>
+    <button class="shot shot--tall rv" data-shot="1">
+      <img src="./img/Sakura.jpg" alt="Vaibhav Singh standing beneath a cherry blossom tree in Tokyo" loading="lazy" width="3024" height="4032">
+      <figcaption>Sakura<s>Tokyo, Japan</s></figcaption>
+    </button>
+    <button class="shot shot--tall rv" data-shot="2">
+      <img src="./img/Tron.jpg" alt="A neon-lit rider at night in Tokyo" loading="lazy" width="864" height="1184">
+      <figcaption>Night ride<s>Tokyo, Japan</s></figcaption>
+    </button>
+  </div>
+</section>
+
+<!-- ═══════════════ CONTACT ═══════════════ -->
+<section id="contact">
+  <div class="head rv">
+    <h2>Get in touch</h2>
+    <div class="meta">Open to research collaboration</div>
+  </div>
+  <div class="contact-grid">
+    <p class="rv">
+      If you are working on inference-time control, reward models, or anything that makes a model
+      safer without retraining it &mdash; I would like to hear about it. Papers, code and datasets above are all public;
+      ask me anything about them.
+    </p>
+    <div class="contact-list rv">
+      <a href="mailto:itsvaibhavsingh7023@gmail.com"><span>Email</span><span>itsvaibhavsingh7023@gmail.com &nearr;</span></a>
+      <a href="https://scholar.google.com/citations?user=5tdH2eEAAAAJ&hl=en" target="_blank" rel="noopener"><span>Scholar</span><span>5tdH2eEAAAAJ &nearr;</span></a>
+      <a href="https://github.com/itsvaibhav01" target="_blank" rel="noopener"><span>GitHub</span><span>itsvaibhav01 &nearr;</span></a>
+      <a href="https://www.linkedin.com/in/vaibhav-singh-324457140/" target="_blank" rel="noopener"><span>LinkedIn</span><span>vaibhav-singh &nearr;</span></a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>&copy; 2026 Vaibhav Singh</span>
+    <span>Background: Conway&rsquo;s Game of Life, B3/S23</span>
+  </div>
+</footer>
+
+<div class="life-dock">
+  <button id="lifePlay" title="Pause the simulation" aria-label="Pause the simulation">
+    <svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+  </button>
+  <button id="lifeClear" title="Clear the grid" aria-label="Clear the grid">
+    <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+  </button>
+  <button id="lifeSeed" title="Reseed the grid" aria-label="Reseed the grid">
+    <svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+  </button>
+  <span class="life-gen" id="lifeGen" aria-live="off">gen 0</span>
+</div>
+
+<div id="box" role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <button class="x" id="boxX" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+  <button class="pv" id="boxP" aria-label="Previous photo"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <button class="nx" id="boxN" aria-label="Next photo"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button>
+  <img id="boxImg" src="" alt="">
+  <div class="cap" id="boxCap"></div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<style>section[id],header[id]{scroll-margin-top:76px}</style>
+
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"Person",
+      "@id":"https://itsvaibhav01.github.io/#person",
+      "name":"Vaibhav Singh",
+      "givenName":"Vaibhav",
+      "familyName":"Singh",
+      "url":"https://itsvaibhav01.github.io/",
+      "image":"https://itsvaibhav01.github.io/img/Sakura.jpg",
+      "jobTitle":"Senior Data Scientist",
+      "worksFor":{"@type":"Organization","name":"SB Intuitions","url":"https://www.sbintuitions.co.jp/en/","department":{"@type":"Organization","name":"Creative Vision Team, Multimodal AI Department"}},
+      "email":"mailto:itsvaibhavsingh7023@gmail.com",
+      "alumniOf":{"@type":"CollegeOrUniversity","name":"Indian Institute of Technology Bombay","url":"https://www.iitb.ac.in/"},
+      "knowsAbout":["Large Language Models","Image Generation","World Models","Computer Vision","Model Evaluation","AI Safety","LLM Alignment","Reward Models","In-Context Learning","Test-Time Scaling","Multimodal LLMs","Natural Language Processing","Machine Learning"],
+      "sameAs":[
+        "https://scholar.google.com/citations?user=5tdH2eEAAAAJ&hl=en",
+        "https://github.com/itsvaibhav01",
+        "https://www.linkedin.com/in/vaibhav-singh-324457140/"
+      ]
+    },
+    {
+      "@type":"ProfilePage",
+      "@id":"https://itsvaibhav01.github.io/#page",
+      "url":"https://itsvaibhav01.github.io/",
+      "name":"Vaibhav Singh — LLM Safety, Alignment & Test-Time Reasoning",
+      "about":{"@id":"https://itsvaibhav01.github.io/#person"},
+      "mainEntity":{"@id":"https://itsvaibhav01.github.io/#person"},
+      "inLanguage":"en"
+    },
+    {
+      "@type":"ScholarlyArticle",
+      "name":"Safety Recovery in Reasoning Models Is Only a Few Early Steering Steps Away",
+      "author":[{"@type":"Person","name":"Soumya Suvra Ghosal"},{"@type":"Person","name":"Souradip Chakraborty"},{"@id":"https://itsvaibhav01.github.io/#person"},{"@type":"Person","name":"Furong Huang"},{"@type":"Person","name":"Dinesh Manocha"},{"@type":"Person","name":"Amrit Singh Bedi"}],
+      "datePublished":"2026",
+      "url":"https://arxiv.org/abs/2602.11096",
+      "isPartOf":{"@type":"Periodical","name":"International Conference on Machine Learning (ICML)"}
+    },
+    {
+      "@type":"ScholarlyArticle",
+      "name":"ThinkRetrieve: Retrieval-Augmented Reasoning Traces for Test-Time Scaling",
+      "author":[{"@id":"https://itsvaibhav01.github.io/#person"},{"@type":"Person","name":"Soumya Suvra Ghosal"},{"@type":"Person","name":"Sarvesh Gharat"},{"@type":"Person","name":"Soumyabrata Pal"},{"@type":"Person","name":"Ramasuri Narayanam"},{"@type":"Person","name":"Dinesh Manocha"}],
+      "datePublished":"2026",
+      "url":"https://arxiv.org/abs/2608.10928",
+      "isPartOf":{"@type":"Periodical","name":"Findings of EMNLP"}
+    },
+    {
+      "@type":"ScholarlyArticle",
+      "name":"KITE: Kernelized and Information Theoretic Exemplars for In-Context Learning",
+      "author":[{"@id":"https://itsvaibhav01.github.io/#person"},{"@type":"Person","name":"Soumya Suvra Ghosal"},{"@type":"Person","name":"Kapu Nirmal Joshua"},{"@type":"Person","name":"Soumyabrata Pal"},{"@type":"Person","name":"Sayak Ray Chowdhury"}],
+      "datePublished":"2026",
+      "url":"https://arxiv.org/abs/2509.15676",
+      "isPartOf":{"@type":"Periodical","name":"Findings of EMNLP"}
+    },
+    {
+      "@type":"ScholarlyArticle",
+      "name":"IMMUNE: Improving Safety Against Jailbreaks in Multi-modal LLMs via Inference-Time Alignment",
+      "author":[{"@type":"Person","name":"Soumya Suvra Ghosal"},{"@type":"Person","name":"Souradip Chakraborty"},{"@id":"https://itsvaibhav01.github.io/#person"},{"@type":"Person","name":"Tianrui Guan"},{"@type":"Person","name":"Mengdi Wang"},{"@type":"Person","name":"Alvaro Velasquez"},{"@type":"Person","name":"Ahmad Beirami"},{"@type":"Person","name":"Furong Huang"},{"@type":"Person","name":"Dinesh Manocha"},{"@type":"Person","name":"Amrit Singh Bedi"}],
+      "datePublished":"2025",
+      "url":"https://arxiv.org/abs/2411.18688",
+      "isPartOf":{"@type":"Periodical","name":"IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)"}
+    },
+    {
+      "@type":"ScholarlyArticle",
+      "name":"RELIC: Enhancing Reward Model Generalization for Low-Resource Indic Languages with Few-Shot Examples",
+      "author":[{"@type":"Person","name":"Soumya Suvra Ghosal"},{"@id":"https://itsvaibhav01.github.io/#person"},{"@type":"Person","name":"Akash Ghosh"},{"@type":"Person","name":"Soumyabrata Pal"},{"@type":"Person","name":"Subhadip Baidya"},{"@type":"Person","name":"Sriparna Saha"},{"@type":"Person","name":"Dinesh Manocha"}],
+      "datePublished":"2025",
+      "url":"https://aclanthology.org/2025.findings-emnlp.79/",
+      "isPartOf":{"@type":"Periodical","name":"Findings of EMNLP"}
+    }
+  ]
+}
+</script>
+
+<script>
+(function(){
+'use strict';
+var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ═══════════ CONWAY'S GAME OF LIFE ═══════════
+   Cells are born amber (an intervention) and settle into teal (the process
+   carrying on). Same grammar as the paper diagrams. */
+var cvs = document.getElementById('life'), ctx = cvs.getContext('2d');
+var CELL = 26, TICK = 150;
+var cols = 0, rows = 0, cur, age, tval, alpha, gen = 0, playing = true;
+var dpr = Math.min(window.devicePixelRatio || 1, 2);
+var AMB = [240,180,41], TEA = [100,182,172];
+var genEl = document.getElementById('lifeGen');
+
+function build(){
+  var w = window.innerWidth, h = window.innerHeight;
+  cvs.width = Math.floor(w*dpr); cvs.height = Math.floor(h*dpr);
+  cvs.style.width = w+'px'; cvs.style.height = h+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  cols = Math.ceil(w/CELL)+1; rows = Math.ceil(h/CELL)+1;
+  var n = cols*rows;
+  cur = new Uint8Array(n); age = new Uint8Array(n);
+  tval = new Float32Array(n); alpha = new Float32Array(n);
+  seed();
+}
+function seed(){
+  for (var i=0;i<cur.length;i++){
+    cur[i] = Math.random() < 0.15 ? 1 : 0;
+    age[i] = cur[i] ? 6 : 0;
+    tval[i] = 1;
+    alpha[i] = cur[i] ? 1 : 0;
+  }
+  gen = 0; paintGen();
+}
+function clear(){
+  for (var i=0;i<cur.length;i++){ cur[i]=0; age[i]=0; }
+  gen = 0; paintGen();
+}
+function paintGen(){ genEl.textContent = 'gen ' + gen; }
+function at(x,y){ return ((y%rows)+rows)%rows*cols + (((x%cols)+cols)%cols); }
+
+function step(){
+  var next = new Uint8Array(cur.length), x, y, dx, dy, n, i, was;
+  for (y=0;y<rows;y++){
+    for (x=0;x<cols;x++){
+      n = 0;
+      for (dy=-1;dy<=1;dy++) for (dx=-1;dx<=1;dx++){
+        if (dx || dy) n += cur[at(x+dx, y+dy)];
+      }
+      i = y*cols + x; was = cur[i];
+      next[i] = was ? (n===2 || n===3 ? 1 : 0) : (n===3 ? 1 : 0);
+      if (next[i]){
+        age[i] = was ? Math.min(age[i]+1, 12) : 0;
+        tval[i] = Math.min(age[i]/5, 1);
+      } else {
+        age[i] = 0;
+      }
+    }
+  }
+  cur = next; gen++;
+  if (gen % 4 === 0) paintGen();
+}
+
+function draw(){
+  ctx.clearRect(0,0,cvs.width,cvs.height);
+  var x, y, i, a, t, born, r, cx, cy, R, G, B;
+  for (y=0;y<rows;y++){
+    for (x=0;x<cols;x++){
+      i = y*cols + x;
+      alpha[i] += ((cur[i] ? 1 : 0) - alpha[i]) * 0.14;
+      a = alpha[i];
+      if (a < 0.025) continue;
+      t = tval[i]; born = 1 - t;
+      R = Math.round(AMB[0] + (TEA[0]-AMB[0])*t);
+      G = Math.round(AMB[1] + (TEA[1]-AMB[1])*t);
+      B = Math.round(AMB[2] + (TEA[2]-AMB[2])*t);
+      r = CELL * (0.15 + 0.085*born) * Math.min(a*1.35, 1);
+      cx = x*CELL + CELL/2; cy = y*CELL + CELL/2;
+      ctx.fillStyle = 'rgba('+R+','+G+','+B+','+(a*(0.55 + 0.45*born)).toFixed(3)+')';
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, 6.28319); ctx.fill();
+    }
+  }
+}
+
+var acc = 0, last = 0, paint = 0;
+function loop(ts){
+  if (!last) last = ts;
+  var dt = Math.min(ts - last, 250); last = ts;
+  if (playing){ acc += dt; if (acc >= TICK){ acc = 0; step(); } }
+  paint += dt;
+  if (paint >= 26){ paint = 0; draw(); }   /* ~38fps is plenty for a slow fade */
+  requestAnimationFrame(loop);
+}
+
+/* a glider: the smallest thing that changes where the pattern goes */
+var GLIDER = [[1,0],[2,1],[0,2],[1,2],[2,2]];
+function stamp(px, py){
+  var gx = Math.floor(px/CELL), gy = Math.floor(py/CELL);
+  for (var k=0;k<GLIDER.length;k++){
+    var i = at(gx+GLIDER[k][0]-1, gy+GLIDER[k][1]-1);
+    cur[i] = 1; age[i] = 0; tval[i] = 0; alpha[i] = Math.max(alpha[i], 0.4);
+  }
+}
+function brush(px, py){
+  var i = at(Math.floor(px/CELL), Math.floor(py/CELL));
+  cur[i] = 1; age[i] = 0; tval[i] = 0;
+}
+var dragging = false;
+cvs.addEventListener('pointerdown', function(e){ dragging = true; stamp(e.clientX, e.clientY); });
+window.addEventListener('pointerup', function(){ dragging = false; });
+cvs.addEventListener('pointermove', function(e){ if (dragging) brush(e.clientX, e.clientY); });
+
+document.getElementById('lifePlay').addEventListener('click', function(){
+  playing = !playing;
+  this.setAttribute('aria-label', playing ? 'Pause the simulation' : 'Resume the simulation');
+  this.title = playing ? 'Pause the simulation' : 'Resume the simulation';
+  this.innerHTML = playing
+    ? '<svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
+    : '<svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg>';
+});
+document.getElementById('lifeClear').addEventListener('click', clear);
+document.getElementById('lifeSeed').addEventListener('click', seed);
+document.addEventListener('visibilitychange', function(){ if (document.hidden) last = 0; });
+
+var rt;
+window.addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(build, 200); });
+
+build();
+if (reduce){ playing = false; draw(); } else { requestAnimationFrame(loop); }
+
+/* ═══════════ NAV: stick + scroll-spy ═══════════ */
+var nav = document.getElementById('nav');
+var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-links a'));
+window.addEventListener('scroll', function(){
+  nav.classList.toggle('stuck', window.scrollY > 70);
+}, {passive:true});
+
+var spy = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if (!en.isIntersecting) return;
+    var id = '#' + en.target.id;
+    navLinks.forEach(function(a){ a.classList.toggle('on', a.getAttribute('href') === id); });
+  });
+}, {rootMargin:'-45% 0px -50% 0px'});
+['research','experience','projects','offscreen','contact'].forEach(function(id){
+  var el = document.getElementById(id); if (el) spy.observe(el);
+});
+
+/* ═══════════ reveal on scroll ═══════════ */
+var rv = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){
+    if (en.isIntersecting){ en.target.classList.add('in'); rv.unobserve(en.target); }
+  });
+}, {threshold:0.1, rootMargin:'0px 0px -40px 0px'});
+Array.prototype.forEach.call(document.querySelectorAll('.rv'), function(el, i){
+  el.style.transitionDelay = Math.min(i % 6, 5) * 45 + 'ms';
+  rv.observe(el);
+});
+
+/* ═══════════ motifs animate only while visible ═══════════ */
+var mo = new IntersectionObserver(function(entries){
+  entries.forEach(function(en){ en.target.classList.toggle('run', en.isIntersecting); });
+}, {threshold:0.15});
+Array.prototype.forEach.call(document.querySelectorAll('[data-motif]'), function(el){ mo.observe(el); });
+
+/* ═══════════ topic filter ═══════════ */
+var papers = Array.prototype.slice.call(document.querySelectorAll('.paper'));
+var fbtns = Array.prototype.slice.call(document.querySelectorAll('.filters button'));
+fbtns.forEach(function(b){
+  var f = b.dataset.f;
+  b.addEventListener('click', function(){
+    fbtns.forEach(function(o){ o.setAttribute('aria-pressed', String(o === b)); });
+    papers.forEach(function(p){
+      var show = f === 'all' || (' '+p.dataset.themes+' ').indexOf(' '+f+' ') > -1;
+      p.classList.toggle('hide', !show);
+    });
+  });
+});
+
+/* ═══════════ abstract + bibtex ═══════════ */
+Array.prototype.forEach.call(document.querySelectorAll('[data-toggle]'), function(btn){
+  btn.setAttribute('aria-expanded','false');
+  btn.addEventListener('click', function(){
+    var card = btn.closest('.paper');
+    var open = card.classList.toggle('open');
+    btn.setAttribute('aria-expanded', String(open));
+    btn.lastChild.textContent = open ? 'Hide details' : 'Abstract & BibTeX';
+  });
+});
+
+var toast = document.getElementById('toast'), tt;
+function say(msg){
+  toast.textContent = msg; toast.classList.add('on');
+  clearTimeout(tt); tt = setTimeout(function(){ toast.classList.remove('on'); }, 1900);
+}
+Array.prototype.forEach.call(document.querySelectorAll('[data-copy]'), function(btn){
+  btn.addEventListener('click', function(){
+    var pre = btn.closest('.bib').querySelector('[data-bib]');
+    var txt = pre.textContent;
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){ say('BibTeX copied'); },
+                                              function(){ say('Copy failed — select the text'); });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = txt; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); say('BibTeX copied'); }
+      catch(e){ say('Copy failed — select the text'); }
+      document.body.removeChild(ta);
+    }
+  });
+});
+
+/* ═══════════ photo viewer ═══════════ */
+var shots = Array.prototype.slice.call(document.querySelectorAll('.shot'));
+var box = document.getElementById('box'), boxImg = document.getElementById('boxImg'),
+    boxCap = document.getElementById('boxCap');
+var at_ = 0, opener = null;
+function show(n){
+  at_ = (n + shots.length) % shots.length;
+  var img = shots[at_].querySelector('img');
+  boxImg.src = img.src; boxImg.alt = img.alt;
+  boxCap.textContent = shots[at_].querySelector('figcaption').textContent;
+}
+function open(n){ opener = document.activeElement; show(n); box.classList.add('on');
+  document.body.style.overflow = 'hidden'; document.getElementById('boxX').focus(); }
+function close(){ box.classList.remove('on'); document.body.style.overflow = '';
+  if (opener) opener.focus(); }
+shots.forEach(function(s, i){ s.addEventListener('click', function(){ open(i); }); });
+document.getElementById('boxX').addEventListener('click', close);
+document.getElementById('boxP').addEventListener('click', function(){ show(at_-1); });
+document.getElementById('boxN').addEventListener('click', function(){ show(at_+1); });
+box.addEventListener('click', function(e){ if (e.target === box) close(); });
+document.addEventListener('keydown', function(e){
+  if (!box.classList.contains('on')) return;
+  if (e.key === 'Escape') close();
+  if (e.key === 'ArrowLeft') show(at_-1);
+  if (e.key === 'ArrowRight') show(at_+1);
+});
+})();
+</script>
+
 </body>
 </html>
